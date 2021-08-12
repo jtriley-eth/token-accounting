@@ -5,7 +5,6 @@ const app = express()
 const port = 5000
 
 app.use(express.json())
-app.use('/accounting', accountingRouter)
+app.use('/account_data', accountingRouter)
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
-

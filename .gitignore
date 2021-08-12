@@ -6,3 +6,7 @@ node_modules
 dist
 yarn.lock
 package-lock.json
+
+# misc
+notes
+

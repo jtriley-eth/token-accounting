@@ -1,23 +1,20 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "target": "es6",
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "outDir": "dist",
-        "baseUrl": ".",
-        "strict": true,
-        "strictNullChecks": true,
-        "noImplicitAny": true,
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
-    },
-    "lib": ["es2015"],
-    "include": [
-        "src/**/*"
-    ]
+	"compilerOptions": {
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"target": "es6",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"outDir": "dist",
+		"baseUrl": ".",
+		"strict": true,
+		"strictNullChecks": true,
+		"noImplicitAny": true,
+		"paths": {
+			"*": ["node_modules/*"]
+		}
+	},
+	"lib": ["es2015"],
+	"include": ["src/**/*"],
+	"exclude": ["./tests", "./node_modules", "./dist/"]
 }

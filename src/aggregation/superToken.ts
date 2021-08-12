@@ -2,7 +2,7 @@ import gql from 'graphql-tag'
 import { ApolloClient } from 'apollo-client'
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import fetch from 'node-fetch'
+import fetch from 'isomorphic-fetch'
 import { supertokenQuery } from '../constants/theGraphQuery'
 import {
 	QueryAccountToken,
@@ -108,8 +108,12 @@ export const getSuperTokens = async (
 			)
 			return accountTokens
 		})
-		.catch(error => {
-			console.log(error)
+		.catch(_ => {
+			console.log('graph error' /* error */)
 			return []
 		})
+}
+
+export function testForChaiDemo() {
+	return 'asdf'
 }
