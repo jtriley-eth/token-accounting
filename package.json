@@ -11,7 +11,7 @@
 		"build": "tsc",
 		"prestart": "yarn run build",
 		"start": "node .",
-		"test": "mocha -r ts-node/register 'tests/**/*.ts'",
+		"test": "mocha -r ts-node/register 'tests/**/*.ts' --exit",
 		"prepare": "husky install"
 	},
 	"devDependencies": {
@@ -22,6 +22,7 @@
 		"@types/node": "^16.4.13",
 		"@types/node-fetch": "^2.5.12",
 		"chai": "^4.3.4",
+		"chai-http": "^4.3.0",
 		"husky": "^7.0.0",
 		"mocha": "^9.0.3",
 		"prettier": "^2.3.2",
