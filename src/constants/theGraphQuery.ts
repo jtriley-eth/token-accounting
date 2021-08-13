@@ -1,10 +1,14 @@
+// some `id` fields are redundant, but due to apollo client """feature"""
+// either NONE or EVERY field has to have an id
+// see https://stackoverflow.com/a/56402056
 export const supertokenQuery = `
-query ($userAddress: String!) {
+query ($userAddress: ID!) {
     accountTokens: accountWithTokens(
         where: {
             account: $userAddress
         }
     ) {
+        id
         token {
             id
             name
@@ -13,6 +17,7 @@ query ($userAddress: String!) {
         inTransfers: transferEventsReceived {
             id
             transaction {
+                id
                 timestamp
             }
             to {
@@ -30,6 +35,7 @@ query ($userAddress: String!) {
         outTransfers: transferEventsSent {
             id
             transaction {
+                id
                 timestamp
             }
             to {
@@ -45,6 +51,7 @@ query ($userAddress: String!) {
             value
         }
         flows: token {
+            id
             outFlows: flows(
                 where: {
                     owner: $userAddress
@@ -88,6 +95,7 @@ query ($userAddress: String!) {
                 events {
                     id
                     transaction {
+                        id
                         timestamp
                     }
                     oldFlowRate
