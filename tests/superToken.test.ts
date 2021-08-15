@@ -1,3 +1,8 @@
+// MUST be first
+// for testing
+import dotenv from 'dotenv'
+dotenv.config()
+
 import { getSuperTokens, testForChaiDemo } from '../src/aggregation/superToken'
 import { expect } from 'chai'
 
@@ -6,12 +11,13 @@ describe('superTokens.ts tests', () => {
 	// test async
 	it('checking getSuperTokens()', async () => {
 		// call async function
-		const superTokens = await getSuperTokens(
-			'0xb47a9b6f062c33ed78630478dff9056687f840f2',
-			'goerli'
-		)
-
-		expect(superTokens).to.have.lengthOf(2)
+		const address = process.env.ADDRESS
+		if (typeof address === 'string') {
+			const superTokens = await getSuperTokens(address, 'goerli')
+			expect(superTokens).to.have.lengthOf(2)
+		} else {
+			throw Error('dotenv failed to load')
+		}
 	})
 
 	// test

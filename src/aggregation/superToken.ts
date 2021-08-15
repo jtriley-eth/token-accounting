@@ -34,7 +34,7 @@ export const getSuperTokens = async (
 		.query({
 			query,
 			variables: {
-				userAddress: userAddress
+				userAddress: userAddress.toLowerCase()
 			}
 		})
 		.then(data => {
