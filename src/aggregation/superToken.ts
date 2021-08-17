@@ -14,10 +14,11 @@ import {
 } from '../types'
 import { graphEndpoint } from '../constants/theGraphEndpoint'
 
+// DONT ANY THIS
 export const getSuperTokens = async (
 	userAddress: string,
 	chain: ChainName
-): Promise<AccountToken[]> => {
+): Promise<Array<any>> => {
 	const httpLink = createHttpLink({
 		uri: graphEndpoint(chain),
 		fetch
@@ -32,11 +33,14 @@ export const getSuperTokens = async (
 	return client
 		.query({
 			query,
-			variables: [userAddress]
+			variables: {
+				userAddress: userAddress
+			}
 		})
 		.then(data => {
 			const queryAccountTokens: QueryAccountToken[] =
 				data.data.accountTokens
+			return queryAccountTokens
 
 			const accountTokens = queryAccountTokens.map(
 				(accountToken): AccountToken => {
@@ -108,8 +112,8 @@ export const getSuperTokens = async (
 			)
 			return accountTokens
 		})
-		.catch(_ => {
-			console.log('graph error' /* error */)
+		.catch(error => {
+			console.log(error)
 			return []
 		})
 }
