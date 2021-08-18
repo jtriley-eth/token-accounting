@@ -1,4 +1,5 @@
 import { baseUrl } from '../constants/etherscanEndpoints'
+// import zlib from 'zlib'
 
 // TODO: DONT USE `ANY`
 export const getTransactionsAsync = async (
@@ -10,8 +11,13 @@ export const getTransactionsAsync = async (
 ): Promise<any> => {
 	const url = `${baseUrl}module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=${endBlock}&sort=${sort}&apikey=${apiKey}`
 	try {
-		const result = fetch(url)
-		return result
+		const response = await fetch(url)
+		// if (response.body !== null) {
+		// zlib.gunzip(response.body, (err, result) => {
+
+		// })
+		// }
+		return response
 	} catch (error) {
 		throw error
 	}
