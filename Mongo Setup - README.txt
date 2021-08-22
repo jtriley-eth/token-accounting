@@ -25,6 +25,7 @@ Note* If "mongo" is not recognized, you need to add an env variable.  On Windows
 
 Helpful Tips for Mongo/Mongoose:
 
+-You can use the installed MongoDB Compass app to view your database and collections in a nice UI, avoiding having to use the Mongo Shell. Use the URL string below.
 
 -The url to access this database via Node.js is this:   'mongodb://127.0.0.1:27017/myDatabase' 
  
