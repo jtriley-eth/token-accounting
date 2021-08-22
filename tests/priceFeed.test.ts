@@ -45,4 +45,25 @@ describe('Price Feeder Tests', () => {
 			expect(data.prices).to.equal(undefined)
 		})
 	})
+
+	// Testing contract from polygon
+	it('checking polygon for GRT', async () => {
+		const params = {
+			id: 'polygon-pos',
+			contract_address: '0x5fe2b58c013d7601147dcdd68c143a77499f5531',
+			vs_currency: 'usd',
+			days: 3
+		}
+		// call function with params
+	})
+
+	it('checking xdai for WETH', async () => {
+		const params = {
+			id: 'xdai',
+			contract_address: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+			vs_currency: 'usd',
+			days: 3
+		}
+		// call function with params
+	})
 })
