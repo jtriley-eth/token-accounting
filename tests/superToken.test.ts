@@ -1,5 +1,6 @@
-import { getSuperTokens, testForChaiDemo } from '../src/aggregation/superToken'
+import { getSuperTokens } from '../src/aggregation/superToken'
 import { expect } from 'chai'
+import { ethToUnixTime, getSecondsIn } from '../src/helpers/time'
 
 // tests container
 describe('superTokens.ts tests', () => {
@@ -8,14 +9,14 @@ describe('superTokens.ts tests', () => {
 		// call async function
 		const superTokens = await getSuperTokens(
 			'0xb47a9b6f062c33ed78630478dff9056687f840f2',
-			'goerli'
+			'goerli',
+			Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
+			Date.now()
 		)
 
-		expect(superTokens).to.have.lengthOf(2)
-	})
+		console.log(superTokens)
+		expect(superTokens).to.equal(30)
 
-	// test
-	it('checking testForChaiDemo()', () => {
-		expect(testForChaiDemo()).to.equal('asdf')
+		// expect(superTokens).to.have.lengthOf(2)
 	})
 })

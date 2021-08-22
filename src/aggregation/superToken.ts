@@ -4,21 +4,21 @@ import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import fetch from 'isomorphic-fetch'
 import { supertokenQuery } from '../constants/theGraphQuery'
-import {
-	QueryAccountToken,
-	FlowEvent,
-	TokenEvent,
-	AccountToken,
-	Flow,
-	ChainName
-} from '../types'
+import { Account, OutputFlow } from '../superTokenTypes'
+import { ChainName } from '../types'
 import { graphEndpoint } from '../constants/theGraphEndpoint'
+import { getSecondsIn, roundToDay, unixToEthTime } from '../helpers/time'
 
 // DONT ANY THIS
 export const getSuperTokens = async (
 	userAddress: string,
-	chain: ChainName
-): Promise<Array<any>> => {
+	chain: ChainName,
+	start: number,
+	end: number
+): Promise<any> => {
+	const startDay = unixToEthTime(roundToDay(start))
+	const endDay = unixToEthTime(roundToDay(end))
+
 	const httpLink = createHttpLink({
 		uri: graphEndpoint(chain),
 		fetch
@@ -38,86 +38,30 @@ export const getSuperTokens = async (
 			}
 		})
 		.then(data => {
-			const queryAccountTokens: QueryAccountToken[] =
-				data.data.accountTokens
-			return queryAccountTokens
+			const { account }: { account: Account } = data.data
+			const {
+				flowsReceived,
+				flowsSent,
+				upgradeEvents,
+				downgradeEvents,
+				accountWithToken
+			} = account
 
-			const accountTokens = queryAccountTokens.map(
-				(accountToken): AccountToken => {
-					const { token, inTransfers, outTransfers } = accountToken
-					const { id, name, symbol } = token
-					// Destructured this way to prevent 'flows' naming collision
-					const { inFlows, outFlows } = accountToken.flows
-					const allFlows = inFlows.concat(outFlows)
+			const flows = flowsReceived.concat(flowsSent).sort((a, b) => {
+				const { timestamp: aTime } = a.events[0].transaction
+				const { timestamp: bTime } = b.events[0].transaction
+				return parseInt(aTime) - parseInt(bTime)
+			})
+			const days = (endDay - startDay) / getSecondsIn('day')
 
-					const flows = allFlows.map(
-						(flow): Flow => ({
-							id: flow.id,
-							sum: flow.sum,
-							flowRate: flow.flowRate,
-							lastUpdate: parseInt(flow.lastUpdate, 10),
-							sender: flow.owner.id,
-							recipient: flow.recipient.id
-						})
-					)
+			let outputFlows: Array<OutputFlow> = []
 
-					const flowEvents = allFlows.reduce(
-						(events: TokenEvent[], flow) => {
-							return events.concat(
-								flow.events.map(
-									(event): FlowEvent => ({
-										id: event.id,
-										timestamp: parseInt(
-											event.transaction.timestamp,
-											10
-										),
-										sender: flow.owner.id,
-										recipient: flow.recipient.id,
-										oldFlowRate: event.oldFlowRate,
-										flowRate: event.flowRate,
-										sum: event.sum,
-										type: 'flow'
-									})
-								)
-							)
-						},
-						[]
-					)
+			// iterate over days
+			for (let iter = 0; iter < days; iter++) {
+				const date = startDay + iter * getSecondsIn('day')
 
-					const transferEvents = inTransfers.concat(outTransfers).map(
-						(transfer): TokenEvent => ({
-							id: transfer.id,
-							timestamp: parseInt(
-								transfer.transaction.timestamp,
-								10
-							),
-							sender: transfer.from.account.id,
-							recipient: transfer.to.account.id,
-							value: transfer.value,
-							type: 'transfer'
-						})
-					)
-
-					const tokenEvents = flowEvents.concat(transferEvents)
-					return {
-						metadata: {
-							id,
-							name,
-							symbol
-						},
-						events: tokenEvents,
-						flows
-					}
-				}
-			)
-			return accountTokens
+				//
+				flows.forEach(flow => {})
+			}
 		})
-		.catch(error => {
-			console.log(error)
-			return []
-		})
-}
-
-export function testForChaiDemo() {
-	return 'asdf'
 }
