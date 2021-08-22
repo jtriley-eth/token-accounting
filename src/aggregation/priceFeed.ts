@@ -1,6 +1,6 @@
 // 1. Import coingecko-api
 import { CoinGeckoClient } from 'coingecko-api-v3'
-import { CoinHistoryInput, CoinHistoryInput_Contract } from '../priceFeedTypes'
+import { CoinHistoryInput, CoinHistoryInputContract } from '../priceFeedTypes'
 
 // { RESPONSES
 //   success: Boolean,
@@ -30,8 +30,8 @@ const getACoinsHistory = async (input: CoinHistoryInput) => {
 	return data
 }
 
-//get coin history via contract address and num days back
-const getCoinHistoryViaContract = async (input: CoinHistoryInput_Contract) => {
+// get coin history via contract address and num days back
+const getCoinHistoryViaContract = async (input: CoinHistoryInputContract) => {
 	const data = await client.contractMarketChartRange(input)
 	return data
 }

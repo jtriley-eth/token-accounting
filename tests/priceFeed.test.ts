@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import {
 	CoinHistoryInput,
-	CoinHistoryInput_Contract
+	CoinHistoryInputContract
 } from '../src/priceFeedTypes'
 import PriceFeeder from '../src/aggregation/priceFeed'
 
@@ -31,7 +31,7 @@ describe('Price Feeder Tests', () => {
 	})
 
 	it('checking priceFeeder getCoinHistoryViaContract()', async () => {
-		const input2: CoinHistoryInput_Contract = {
+		const input2: CoinHistoryInputContract = {
 			id: 'ethereum',
 			contract_address: '0x0000000000000000000000000000000000000000',
 			vs_currency: 'usd',
