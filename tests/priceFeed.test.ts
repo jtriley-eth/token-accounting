@@ -55,6 +55,7 @@ describe('Price Feeder Tests', () => {
 			days: 3
 		}
 		// call function with params
+		// avg price for that day
 	})
 
 	it('checking xdai for WETH', async () => {
@@ -65,5 +66,6 @@ describe('Price Feeder Tests', () => {
 			days: 3
 		}
 		// call function with params
+		// avg price for that day
 	})
 })

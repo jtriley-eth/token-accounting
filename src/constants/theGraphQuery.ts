@@ -4,6 +4,107 @@
 
 export const supertokenQuery = `
 query ($userAddress: ID!) {
+    accountTokens: accountWithTokens(
+        where: {
+            account: $userAddress
+        }
+        first: 1000
+    ) {
+        token {
+            id
+            name
+            symbol
+        }
+        inTransfers: transferEventsReceived (first: 1000) {
+            id
+            transaction {
+                timestamp
+            }
+            to {
+                account {
+                    id
+                }
+            }
+            from {
+                account {
+                    id
+                }
+            }
+            value
+        }
+        outTransfers: transferEventsSent (first: 1000) {
+            id
+            transaction {
+                timestamp
+            }
+            to {
+                account {
+                    id
+                }
+            }
+            from {
+                account {
+                    id
+                }
+            }
+            value
+        }
+        flows: token {
+            outFlows: flows(
+                where: {
+                    owner: $userAddress
+                }
+                first: 1000
+            ) {
+                id
+                flowRate
+                lastUpdate
+                owner {
+                    id
+                }
+                recipient {
+                    id
+                }
+                events (first: 1000) {
+                    id
+                    transaction {
+                        timestamp
+                    }
+                    oldFlowRate
+                    flowRate
+                }
+            }
+            inFlows: flows(
+                where: {
+                    recipient: $userAddress
+                }
+                first: 1000
+            ) {
+                id
+                flowRate
+                lastUpdate
+                owner {
+                    id
+                }
+                recipient {
+                    id
+                }
+                events (first: 1000) {
+                    id
+                    transaction {
+                        timestamp
+                    }
+                    oldFlowRate
+                    flowRate
+                }
+            }
+        }
+    }
+}
+`
+
+export const query = `
+query ($userAddress: ID!) {
     account (
         id: $userAddress
     )

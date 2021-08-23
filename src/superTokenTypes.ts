@@ -1,70 +1,150 @@
-// INPUT
+// QUERY RETURNS
 
-interface FlowEvent {
+interface QueryToken {
+	id: string
+	name: string
+	symbol: string
+}
+
+interface QueryTransfer {
+	id: string
+	transaction: {
+		id: string
+		timestamp: string
+	}
+	to: {
+		account: {
+			id: string
+		}
+	}
+	from: {
+		account: {
+			id: string
+		}
+	}
+	value: string
+}
+
+interface QueryFlowEvent {
 	id: string
 	transaction: {
 		id: string
 		timestamp: string
 	}
 	oldFlowRate: string
-	newFlowRate: string
+	flowRate: string
 }
 
-interface Flow {
+interface QueryFlow {
 	id: string
 	flowRate: string
-	sender: {
+	lastUpdate: string
+	owner: {
 		id: string
 	}
 	recipient: {
 		id: string
 	}
-	events: Array<FlowEvent>
+	events: Array<QueryFlowEvent>
 }
 
-interface Token {
+export interface QueryAccountToken {
+	token: QueryToken
+	inTransfers: Array<QueryTransfer>
+	outTransfers: Array<QueryTransfer>
+	flows: {
+		inFlows: Array<QueryFlow>
+		outFlows: Array<QueryFlow>
+	}
+}
+
+// INPUT
+
+export type ChainName =
+	| 'xdai'
+	| 'matic'
+	| 'mumbai'
+	| 'goerli'
+	| 'ropsten'
+	| 'kovan'
+	| 'rinkeby'
+
+export interface TimeFrame {
+	start: number
+	end: number
+}
+
+export interface ChartData {
+	timestamp: number
+	balance: string
+}
+
+export interface TableData {
+	timestamp: number
+	amount: string
+	recipient: string
+	description: string
+	reference: string
+	chequeNumber: string
+}
+
+export interface TransferEvent {
+	id: string
+	timestamp: number
+	txHash: string
+	sender: string
+	recipient: string
+	value: string
+	type: 'transfer'
+}
+
+export interface FlowEvent {
+	id: string
+	timestamp: number
+	txHash: string
+	sender: string
+	recipient: string
+	oldFlowRate: string
+	flowRate: string
+	type: 'flow'
+}
+
+export type TokenEvent = TransferEvent | FlowEvent
+
+export interface Flow {
+	id: string
+	flowRate: string
+	lastUpdate: number
+	sender: string
+	recipient: string
+}
+
+export interface TokenMetadata {
 	id: string
 	name: string
 	symbol: string
-	underlyingAddress: string
 }
 
-interface GradeEvent {
-	id: string
-	transaction: {
-		id: string
-		timestamp: string
-	}
-	token: Token
-	amount: string
+export interface AccountToken {
+	metadata: TokenMetadata
+	events: Array<TokenEvent>
+	flows: Array<Flow>
 }
 
-interface TransferEvent {
-	id: string
-	transaction: {
-		id: string
-		timestamp: string
-	}
-	sender: {
-		id: string
-	}
-	recipient: {
-		id: string
-	}
-	value: string
+export interface UserState {
+	address: string
+	chain: ChainName
+	isDark: boolean
+	tokens: Array<AccountToken>
 }
 
-export interface Account {
-	flowsReceived: Array<Flow>
-	flowsSent: Array<Flow>
-	upgradeEvents: Array<GradeEvent>
-	downgradeEvents: Array<GradeEvent>
-	accountWithToken: Array<{
-		id: string
-		transferEventsSent: Array<TransferEvent>
-		transferEventsReceived: Array<TransferEvent>
-		token: Token
-	}>
+// TYPE GUARDS
+export function isTransferEvent(event: TokenEvent): event is TransferEvent {
+	return event.type === 'transfer'
+}
+
+export function isFlowEvent(event: TokenEvent): event is FlowEvent {
+	return event.type === 'flow'
 }
 
 // OUTPUT
