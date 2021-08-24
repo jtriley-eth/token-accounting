@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import {
 	CoinHistoryInput,
-	CoinHistoryInput_Contract
+	CoinHistoryInputContract
 } from '../src/priceFeedTypes'
 import PriceFeeder from '../src/aggregation/priceFeed'
 
@@ -31,7 +31,7 @@ describe('Price Feeder Tests', () => {
 	})
 
 	it('checking priceFeeder getCoinHistoryViaContract()', async () => {
-		const input2: CoinHistoryInput_Contract = {
+		const input2: CoinHistoryInputContract = {
 			id: 'ethereum',
 			contract_address: '0x0000000000000000000000000000000000000000',
 			vs_currency: 'usd',
@@ -44,5 +44,28 @@ describe('Price Feeder Tests', () => {
 			console.log(data.prices)
 			expect(data.prices).to.equal(undefined)
 		})
+	})
+
+	// Testing contract from polygon
+	it('checking polygon for GRT', async () => {
+		const params = {
+			id: 'polygon-pos',
+			contract_address: '0x5fe2b58c013d7601147dcdd68c143a77499f5531',
+			vs_currency: 'usd',
+			days: 3
+		}
+		// call function with params
+		// avg price for that day
+	})
+
+	it('checking xdai for WETH', async () => {
+		const params = {
+			id: 'xdai',
+			contract_address: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+			vs_currency: 'usd',
+			days: 3
+		}
+		// call function with params
+		// avg price for that day
 	})
 })
