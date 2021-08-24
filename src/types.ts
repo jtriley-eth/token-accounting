@@ -29,7 +29,6 @@ export interface FlowEvent {
 	recipient: string
 	oldFlowRate: string
 	flowRate: string
-	sum: string
 	type: 'flow'
 }
 
@@ -37,7 +36,6 @@ export type TokenEvent = TransferEvent | FlowEvent
 
 export interface Flow {
 	id: string
-	sum: string
 	flowRate: string
 	lastUpdate: number
 	sender: string
@@ -88,12 +86,10 @@ export interface QueryFlowEvent {
 	}
 	oldFlowRate: string
 	flowRate: string
-	sum: string
 }
 
 export interface QueryFlow {
 	id: string
-	sum: string
 	flowRate: string
 	lastUpdate: string
 	owner: {
