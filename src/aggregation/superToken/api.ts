@@ -44,7 +44,10 @@ export const getSuperTokens = async (
 			const accountTokens = queryAccountTokens.map(
 				(accountToken): AccountToken => {
 					const { token, inTransfers, outTransfers } = accountToken
-					const { id, name, symbol } = token
+					// underlyingAddress refers to the ID of the base token, NOT
+					// the Super Token. Coin Gecko requires the underlying
+					// address for price conversions
+					const { underlyingAddress: id, name, symbol } = token
 					// Destructured this way to prevent 'flows' naming collision
 					const { inFlows, outFlows } = accountToken.flows
 					const allFlows = inFlows.concat(outFlows)

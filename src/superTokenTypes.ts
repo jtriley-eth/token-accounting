@@ -4,6 +4,7 @@ interface QueryToken {
 	id: string
 	name: string
 	symbol: string
+	underlyingAddress: string
 }
 
 interface QueryTransfer {
@@ -59,34 +60,9 @@ export interface QueryAccountToken {
 }
 
 // INPUT
+export type ChainName = 'xdai' | 'polygon-pos' | 'ethereum'
 
-export type ChainName =
-	| 'xdai'
-	| 'matic'
-	| 'mumbai'
-	| 'goerli'
-	| 'ropsten'
-	| 'kovan'
-	| 'rinkeby'
-
-export interface TimeFrame {
-	start: number
-	end: number
-}
-
-export interface ChartData {
-	timestamp: number
-	balance: string
-}
-
-export interface TableData {
-	timestamp: number
-	amount: string
-	recipient: string
-	description: string
-	reference: string
-	chequeNumber: string
-}
+export type ChainId = '0x64' | '0x89' | '0x01'
 
 export interface TransferEvent {
 	id: string
@@ -171,21 +147,29 @@ export interface OutputFlow {
 	date: number
 	start: number
 	end: number
-	from: string
-	to: string
+	sender: string
+	recipient: string
 	networkId: string
 	txHash: string
 	amountToken: string
 	amountFiat: string
 	exchangeRate: string
+	token: TokenMetadata
 }
 
 export interface OutputTransfer {
 	date: number
-	from: string
-	to: string
+	sender: string
+	recipient: string
+	txHash: string
 	networkId: string
 	amountToken: string
 	amountFiat: string
 	exchangeRate: string
+	token: TokenMetadata
+}
+
+export interface TableData {
+	flowState: Array<OutputFlow>
+	transfers: Array<OutputTransfer>
 }

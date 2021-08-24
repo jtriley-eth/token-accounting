@@ -1,129 +1,256 @@
 import {
-	TokenEvent,
 	isFlowEvent,
 	AccountToken,
 	TokenMetadata,
-	OutputFlow
+	OutputFlow,
+	ChainId,
+	OutputTransfer,
+	isTransferEvent
 } from '../../superTokenTypes'
-import { getSecondsIn, unixToEthTime } from '../../helpers/time'
+import { getSecondsIn } from '../../helpers/time'
 import BN from 'bn.js'
-
-export const getTimestampBalance = (
-	address: string,
-	timestampDesired: number,
-	tokenEvents: Array<TokenEvent>
-): string => {
-	// remove events after timestamp
-	const events = tokenEvents.filter(
-		event => event.timestamp < unixToEthTime(timestampDesired)
-	)
-	let flowUpdates: Array<{
-		sender: string
-		recipient: string
-		lastUpdate: number
-	}> = []
-	return events.reduce((balance, event) => {
-		const balanceBN = new BN(balance)
-		const { sender, recipient, timestamp } = event
-		if (isFlowEvent(event)) {
-			// flow start
-			if (event.oldFlowRate === '0') {
-				flowUpdates.push({
-					sender,
-					recipient,
-					lastUpdate: timestamp
-				})
-				return balance
-			} else {
-				const index = flowUpdates.findIndex(
-					flowUpdate =>
-						flowUpdate.sender === sender &&
-						flowUpdate.recipient === recipient
-				)
-				const lastUpdateBN = new BN(flowUpdates[index].lastUpdate)
-				const balanceUpdateBN = new BN(timestamp)
-					.sub(lastUpdateBN)
-					.mul(new BN(event.oldFlowRate))
-
-				// flow stop
-				if (event.flowRate === '0') {
-					flowUpdates = flowUpdates.splice(index, 1)
-					return sender === address
-						? balanceBN.sub(balanceUpdateBN).toString()
-						: balanceBN.add(balanceUpdateBN).toString()
-				}
-
-				// flow update
-				flowUpdates[index].lastUpdate = timestamp
-				return sender === address
-					? balanceBN.sub(balanceUpdateBN).toString()
-					: balanceBN.add(balanceUpdateBN).toString()
-			}
-		} else {
-			const valueBN = new BN(event.value)
-
-			return sender === address
-				? balanceBN.sub(valueBN).toString()
-				: balanceBN.add(valueBN).toString()
-		}
-	}, '0')
-}
 
 export const getFlowState = (
 	day: number,
-	accountTokens: Array<AccountToken>
-) => {
-	const flowState = accountTokens.map(accountToken => {
-		const { metadata: token, events: allEvents } = accountToken
-		const events = allEvents.filter(event => event.timestamp < day)
-		let flows: Array<{
-			start: number
-			end: number
-			sender: string
-			recipient: string
-			txHash: string
-			flowRate: string
-			token: TokenMetadata
-		}> = []
+	accountTokens: Array<AccountToken>,
+	networkId: ChainId
+): Array<OutputFlow> => {
+	const secondsInDay = getSecondsIn('day')
+	let flows: Array<{
+		start: number
+		end: number
+		sender: string
+		recipient: string
+		txHash: string
+		flowRate: string
+		token: TokenMetadata
+		flowRateChanges: Array<{
+			// ONLY FOR CHANGES *DURING* DAY
+			timestamp: number
+			previousFlowRate: string
+		}>
+	}> = []
+	let outputFlows: Array<OutputFlow> = []
 
-		events.forEach(event => {
+	accountTokens.forEach(accountToken => {
+		const { metadata: token, events } = accountToken
+		const eventsBeforeDay = events.filter(event => event.timestamp < day)
+
+		// BEFORE DAY
+		eventsBeforeDay.forEach(event => {
+			// typescript wont recognize a `.filter()` type-guard.
 			if (isFlowEvent(event)) {
-				if (event.oldFlowRate === '0') {
-					const {
-						timestamp: start,
-						sender,
-						recipient,
-						txHash,
-						flowRate
-					} = event
+				// get index of flow if exists
+				const index = flows.findIndex(
+					flow =>
+						flow.sender === event.sender &&
+						flow.recipient === event.recipient &&
+						flow.token.id === token.id
+				)
 
-					flows.push({
-						start,
-						end: -1,
-						sender,
-						recipient,
-						txHash,
-						flowRate,
-						token
-					})
+				// destruct event
+				const { timestamp, sender, recipient, txHash, flowRate } = event
+
+				// flow start
+				if (event.oldFlowRate === '0') {
+					if (index === -1) {
+						flows.push({
+							start: timestamp,
+							end: -1, // indicates flow is open
+							sender,
+							recipient,
+							txHash,
+							flowRate,
+							token,
+							flowRateChanges: []
+						})
+					} else {
+						throw Error('duplicate flow (sender, recipient, token)')
+					}
+
+					// flow stop
 				} else if (event.flowRate === '0') {
-					const index = flows.findIndex(
-						flow =>
-							flow.sender === event.sender &&
-							flow.recipient === event.recipient &&
-							flow.end === -1
-					)
-					flows[index].end = event.timestamp
+					if (index !== -1) {
+						flows.splice(index, 1)
+					} else {
+						throw Error(
+							'flow-stop event triggered on non-existent flow'
+						)
+					}
+
+					// flow update
 				} else {
-					const index = flows.findIndex(
-						flow =>
-							flow.sender === event.sender &&
-							flow.recipient === event.recipient &&
-							flow.end === -1
-					)
-					flows[index].flowRate = event.flowRate
+					if (index !== -1) {
+						flows[index].flowRate = event.flowRate
+					} else {
+						throw Error(
+							'flow-update event triggered on non-existent flow'
+						)
+					}
 				}
 			}
 		})
+
+		const eventsDuringDay = events.filter(
+			event =>
+				day <= event.timestamp && event.timestamp < day + secondsInDay
+		)
+
+		// DURING DAY
+		eventsDuringDay.forEach(event => {
+			// typescript wont recognize a `.filter()` type-guard.
+			if (isFlowEvent(event)) {
+				// get index of flow if exists
+				const index = flows.findIndex(
+					flow =>
+						flow.sender === event.sender &&
+						flow.recipient === event.recipient &&
+						flow.token.id === token.id
+				)
+
+				// destruct event
+				const { timestamp, sender, recipient, txHash, flowRate } = event
+
+				// flow start
+				if (event.oldFlowRate === '0') {
+					if (index === -1) {
+						flows.push({
+							start: timestamp,
+							end: -1, // indicates flow is open
+							sender,
+							recipient,
+							txHash,
+							flowRate,
+							token,
+							flowRateChanges: []
+						})
+					} else {
+						throw Error('duplicate flow (sender, recipient, token)')
+					}
+
+					// flow stop
+				} else if (event.flowRate === '0') {
+					if (index !== -1) {
+						flows[index].end = event.timestamp
+					} else {
+						throw Error(
+							'flow-stop event triggered on non-existent flow'
+						)
+					}
+
+					// flow update
+				} else {
+					if (index !== -1) {
+						// records previous flowRate, updates with new
+						flows[index].flowRateChanges.push({
+							timestamp: event.timestamp,
+							previousFlowRate: flows[index].flowRate
+						})
+						flows[index].flowRate = event.flowRate
+					} else {
+						throw Error(
+							'flow-update event triggered on non-existent flow'
+						)
+					}
+				}
+			}
+		})
+
+		// get outputFlows from flows present during day
+		flows.forEach(flow => {
+			const {
+				start,
+				end,
+				sender,
+				recipient,
+				txHash,
+				flowRate,
+				flowRateChanges
+			} = flow
+
+			// calculate amount for the day
+			let amountToken: string
+			if (flowRateChanges.length === 0) {
+				amountToken = new BN(flowRate)
+					.mul(new BN(secondsInDay))
+					.toString()
+			} else {
+				amountToken = flowRateChanges.reduce(
+					(amount, curr, idx, arr) => {
+						if (idx === 0) {
+							return new BN(amount)
+								.add(
+									new BN(curr.timestamp - day).mul(
+										new BN(curr.previousFlowRate)
+									)
+								)
+								.toString()
+						} else {
+							return new BN(amount)
+								.add(
+									new BN(
+										curr.timestamp - arr[idx - 1].timestamp
+									).mul(new BN(curr.previousFlowRate))
+								)
+								.toString()
+						}
+					},
+					'0'
+				)
+			}
+
+			outputFlows.push({
+				date: day,
+				start,
+				end,
+				sender,
+				recipient,
+				networkId,
+				txHash,
+				amountToken,
+				amountFiat: '',
+				exchangeRate: '',
+				token
+			})
+		})
 	})
+	return outputFlows
+}
+
+export const getTransfers = (
+	day: number,
+	accountTokens: Array<AccountToken>,
+	networkId: string
+): Array<OutputTransfer> => {
+	let outputTransfers: Array<OutputTransfer> = []
+
+	accountTokens.forEach(accountToken => {
+		const { metadata: token, events } = accountToken
+		const secondsInDay = getSecondsIn('day')
+		const dayEvents = events.filter(
+			event =>
+				event.timestamp > day && event.timestamp < day + secondsInDay
+		)
+
+		dayEvents.forEach(event => {
+			// typescript wont recognize a `.filter()` type-guard.
+			if (isTransferEvent(event)) {
+				const { txHash, sender, recipient, value: amountToken } = event
+
+				outputTransfers.push({
+					date: day,
+					sender,
+					recipient,
+					txHash,
+					networkId,
+					amountToken,
+					amountFiat: '',
+					exchangeRate: '',
+					token
+				})
+			}
+		})
+	})
+
+	return outputTransfers
 }

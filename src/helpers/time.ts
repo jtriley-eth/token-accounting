@@ -21,10 +21,10 @@ export const ethToUnixTime = (timestamp: number): number => {
 	return timestamp * 100
 }
 
-export const roundToDay = (timestamp: number): number => {
+export const roundDownToDay = (timestamp: number): number => {
 	return new Date(timestamp).setUTCHours(0, 0, 0, 0)
 }
 
 export const ethNow = () => unixToEthTime(Date.now())
 
-export const ethToday = () => unixToEthTime(roundToDay(Date.now()))
+export const ethToday = () => unixToEthTime(roundDownToDay(Date.now()))
