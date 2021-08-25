@@ -7,20 +7,18 @@ import {
 	OutputTransfer,
 	TableData
 } from '../../superTokenTypes'
-import { chainNameToId } from '../../helpers/network'
 
 export const getTableInfo = async (
 	address: string,
-	chainName: ChainName,
+	networkId: ChainName,
 	start: number,
 	end: number
 ): Promise<TableData> => {
 	const startDay = unixToEthTime(roundDownToDay(start))
 	const endDay = unixToEthTime(roundDownToDay(end))
 	const secondsInDay = getSecondsIn('day')
-	const networkId = chainNameToId(chainName)
 
-	const superTokens = await getSuperTokens(address, chainName)
+	const superTokens = await getSuperTokens(address, networkId)
 
 	// GET FLOWS
 	let flowState: Array<OutputFlow> = []

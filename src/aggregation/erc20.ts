@@ -7,8 +7,22 @@ import {
 	QueryxDaiTransfer
 } from '../superTokenTypes'
 
-// TODO: DONT USE `ANY`
 export const getTransactionsAsync = async (
+	address: string,
+	chain: ChainName,
+	apiKey?: string
+): Promise<Array<OutputTransfer>> => {
+	if (chain === 'xdai') {
+		return await xdaiErc20Query(address)
+	} else if (typeof apiKey !== 'undefined') {
+		return await erc20Query(address, apiKey, chain)
+	} else {
+		throw Error(`no api key provided for ${chain} api`)
+	}
+}
+
+// POLYGON AND ETHEREUM
+const erc20Query = async (
 	address: string,
 	apiKey: string,
 	chain: ChainName
@@ -63,8 +77,8 @@ export const getTransactionsAsync = async (
 		})
 }
 
-// https://api.etherscan.io/api?module=account&action=txlist&address=0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a&startblock=0&endblock=99999999&sort=asc&apikey=YourApiKeyToken
-export const xdaiErc20 = async (address: string): Promise<any> => {
+// XDAI (breaking diffs in xDAI)
+const xdaiErc20Query = async (address: string): Promise<any> => {
 	const networkId = 'xdai'
 	const client = axios.create({
 		baseURL: getEndpoint(networkId),
