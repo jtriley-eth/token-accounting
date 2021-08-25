@@ -3,9 +3,9 @@ import {
 	AccountToken,
 	TokenMetadata,
 	OutputFlow,
-	ChainId,
 	OutputTransfer,
-	isTransferEvent
+	isTransferEvent,
+	ChainName
 } from '../../superTokenTypes'
 import { getSecondsIn } from '../../helpers/time'
 import BN from 'bn.js'
@@ -13,7 +13,7 @@ import BN from 'bn.js'
 export const getFlowState = (
 	day: number,
 	accountTokens: Array<AccountToken>,
-	networkId: ChainId
+	networkId: ChainName
 ): Array<OutputFlow> => {
 	const secondsInDay = getSecondsIn('day')
 	let flows: Array<{
@@ -178,14 +178,20 @@ export const getFlowState = (
 				amountToken = flowRateChanges.reduce(
 					(amount, curr, idx, arr) => {
 						if (idx === 0) {
+							// start of day or start of flow, whichever is most recent
+							const dayStartOrFlowStart =
+								day < start ? start : day
+
+							// amount + (timestamp - dayStartOrFlowStart) * previousFlowRate
 							return new BN(amount)
 								.add(
-									new BN(curr.timestamp - day).mul(
-										new BN(curr.previousFlowRate)
-									)
+									new BN(
+										curr.timestamp - dayStartOrFlowStart
+									).mul(new BN(curr.previousFlowRate))
 								)
 								.toString()
 						} else {
+							// amount + (timestamp - previousTimestamp) * previousFlowRate
 							return new BN(amount)
 								.add(
 									new BN(
@@ -220,7 +226,7 @@ export const getFlowState = (
 export const getTransfers = (
 	day: number,
 	accountTokens: Array<AccountToken>,
-	networkId: string
+	networkId: ChainName
 ): Array<OutputTransfer> => {
 	let outputTransfers: Array<OutputTransfer> = []
 
