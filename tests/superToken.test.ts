@@ -3,7 +3,6 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { getSuperTokens, testForChaiDemo } from '../src/aggregation/superToken'
 import { expect } from 'chai'
 import { getTableInfo } from '../src/aggregation/superToken/index'
 import {
@@ -38,17 +37,9 @@ describe('superTokens.ts tests', () => {
 	})
 
 	it('calling getTableInfo()', async () => {
-		// call async function
-		const address = process.env.ADDRESS
-		if (typeof address === 'string') {
-			const superTokens = await getSuperTokens(address, 'goerli')
-			expect(superTokens).to.have.lengthOf(2)
-		} else {
-			throw Error('dotenv failed to load')
-		}
 		// check for error now
 		await getTableInfo(
-			'',
+			process.env.ADDRESS.toLowerCase(),
 			'polygon-pos',
 			Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
 			Date.now()
