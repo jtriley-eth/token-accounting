@@ -90,7 +90,7 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 		.then(response => {
 			const { data } = response
 			if (data.status === '1') {
-				return data.result.map(
+				const transfers: Array<OutputTransfer> = data.result.map(
 					(transfer: QueryxDaiTransfer): OutputTransfer => {
 						const {
 							timeStamp,
@@ -119,6 +119,10 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 							}
 						}
 					}
+				)
+				// handle non-value transfers (POAP, ERC721, etc)
+				return transfers.filter(
+					transfer => typeof transfer.amountToken !== 'undefined'
 				)
 			} else {
 				throw Error(JSON.stringify(data, null, 4))
