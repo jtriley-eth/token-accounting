@@ -1,5 +1,52 @@
 // QUERY RETURNS
 
+// polygon-pos and ethereum
+export interface QueryERC20Transfer {
+	blockNumber: string
+	timeStamp: string
+	hash: string
+	nonce: string
+	blockHash: string
+	from: string
+	contractAddress: string
+	to: string
+	value: string
+	tokenName: string
+	tokenSymbol: string
+	tokenDecimal: string
+	transactionIndex: string
+	gas: string
+	gasPrice: string
+	gasUsed: string
+	cumulativeGasUsed: string
+	input?: string
+	confirmations: string
+}
+
+// xdai (small, but breaking diffs)
+export interface QueryxDaiTransfer {
+	value: string
+	blockHash: string
+	blockNumber: string
+	confirmations: string
+	contractAddress: string
+	cumulativeGasUsed: string
+	from: string
+	gas: string
+	gasPrice: string
+	gasUsed: string
+	hash: string
+	input: string
+	logIndex: string
+	nonce: string
+	timeStamp: string
+	to: string
+	tokenDecimal: string
+	tokenName: string
+	tokenSymbol: string
+	transactionIndex: string
+}
+
 interface QueryToken {
 	id: string
 	name: string
@@ -162,7 +209,7 @@ export interface OutputTransfer {
 	sender: string
 	recipient: string
 	txHash: string
-	networkId: string
+	networkId: ChainName
 	amountToken: string
 	amountFiat: string
 	exchangeRate: string

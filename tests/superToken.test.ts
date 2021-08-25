@@ -1,5 +1,10 @@
+// MUST be first
+// for testing
+import dotenv from 'dotenv'
+dotenv.config()
+
 import { expect } from 'chai'
-import { getTableInfo } from '../src/aggregation/superToken'
+import { getTableInfo } from '../src/aggregation/superToken/index'
 import {
 	getFlowState,
 	getTransfers
@@ -32,10 +37,9 @@ describe('superTokens.ts tests', () => {
 	})
 
 	it('calling getTableInfo()', async () => {
-		// call async function
 		// check for error now
 		await getTableInfo(
-			'',
+			process.env.ADDRESS.toLowerCase(),
 			'polygon-pos',
 			Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
 			Date.now()
