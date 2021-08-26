@@ -37,13 +37,18 @@ describe('superTokens.ts tests', () => {
 	})
 
 	it('calling getTableInfo()', async () => {
+		const address = process.env.ADDRESS
 		// check for error now
-		await getTableInfo(
-			process.env.ADDRESS.toLowerCase(),
-			'polygon-pos',
-			Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
-			Date.now()
-		)
+		if (typeof address === 'string') {
+			await getTableInfo(
+				address.toLowerCase(),
+				'polygon-pos',
+				Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
+				Date.now()
+			)
+		} else {
+			throw Error('dotenv failed to load')
+		}
 	})
 
 	it('checking getFlowState()', () => {
@@ -59,11 +64,7 @@ describe('superTokens.ts tests', () => {
 				flows: []
 			}
 		]
-		const flowState = getFlowState(
-			day,
-			accountTokens,
-			chainNameToId('polygon-pos')
-		)
+		const flowState = getFlowState(day, accountTokens, 'polygon-pos')
 		expect(flowState).to.have.length(0)
 	})
 
@@ -80,11 +81,7 @@ describe('superTokens.ts tests', () => {
 				flows: []
 			}
 		]
-		const flowState = getTransfers(
-			day,
-			accountTokens,
-			chainNameToId('polygon-pos')
-		)
+		const flowState = getTransfers(day, accountTokens, 'polygon-pos')
 		expect(flowState).to.have.length(0)
 	})
 })
