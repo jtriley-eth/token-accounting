@@ -17,7 +17,7 @@ import {
 	getSecondsIn,
 	roundDownToDay
 } from '../src/helpers/time'
-import { AccountToken } from '../src/superTokenTypes'
+import { AccountToken } from '../src/types'
 
 // tests container
 describe('superTokens.ts tests', () => {

@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import Communicator from '../src/database/dbCommunicator'
 import mongoose from 'mongoose'
-import { TestDocumentType } from '../src/DBTypes'
+import { TestDocumentType } from '../src/types'
 
 //document I will be adding and looking up
 const myDoc: TestDocumentType = {

@@ -1,8 +1,5 @@
 import { expect } from 'chai'
-import {
-	CoinHistoryInput,
-	CoinHistoryInputContract
-} from '../src/priceFeedTypes'
+import { CoinHistoryInput, CoinHistoryInputContract } from '../src/types'
 import PriceFeeder from '../src/aggregation/priceFeed'
 
 describe('Price Feeder Tests', () => {
