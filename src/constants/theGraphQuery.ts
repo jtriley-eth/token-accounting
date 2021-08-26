@@ -10,6 +10,7 @@ query ($userAddress: ID!) {
         }
         first: 1000
     ) {
+        id
         token {
             id
             name
@@ -18,14 +19,17 @@ query ($userAddress: ID!) {
         inTransfers: transferEventsReceived (first: 1000) {
             id
             transaction {
+                id
                 timestamp
             }
             to {
+                id
                 account {
                     id
                 }
             }
             from {
+                id
                 account {
                     id
                 }
@@ -35,14 +39,17 @@ query ($userAddress: ID!) {
         outTransfers: transferEventsSent (first: 1000) {
             id
             transaction {
+                id
                 timestamp
             }
             to {
+                id
                 account {
                     id
                 }
             }
             from {
+                id
                 account {
                     id
                 }
@@ -50,6 +57,7 @@ query ($userAddress: ID!) {
             value
         }
         flows: token {
+            id
             outFlows: flows(
                 where: {
                     owner: $userAddress
@@ -68,6 +76,7 @@ query ($userAddress: ID!) {
                 events (first: 1000) {
                     id
                     transaction {
+                        id
                         timestamp
                     }
                     oldFlowRate
@@ -92,6 +101,7 @@ query ($userAddress: ID!) {
                 events (first: 1000) {
                     id
                     transaction {
+                        id
                         timestamp
                     }
                     oldFlowRate

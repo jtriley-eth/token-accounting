@@ -11,7 +11,7 @@ import {
 	TokenEvent,
 	FlowEvent,
 	ChainName
-} from '../../superTokenTypes'
+} from '../../types'
 import { graphEndpoint } from '../../constants/theGraphEndpoint'
 
 export const getSuperTokens = async (
@@ -33,7 +33,7 @@ export const getSuperTokens = async (
 		.query({
 			query,
 			variables: {
-				userAddress: userAddress
+				userAddress: userAddress.toLowerCase()
 			}
 		})
 		.then(data => {
@@ -111,6 +111,7 @@ export const getSuperTokens = async (
 			return accountTokens
 		})
 		.catch(error => {
-			throw error
+			console.error(error)
+			return []
 		})
 }

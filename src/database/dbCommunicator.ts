@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import testModel from './models/testModel'
-import { TestDocumentType } from '../DBTypes'
+import { TestDocumentType } from '../types'
 // const url = 'mongodb+srv://flowstate:flowstate@mycluster.5rvrq.mongodb.net/flowstateAccounting?retryWrites=true&w=majority'
 
 const url = 'mongodb://127.0.0.1:27017/myDatabase'

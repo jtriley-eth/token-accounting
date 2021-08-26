@@ -1,4 +1,4 @@
-import { ChainName } from '../superTokenTypes'
+import { ChainName } from '../types'
 const baseUrl =
 	'https://api.thegraph.com/subgraphs/name/superfluid-finance/superfluid-'
 

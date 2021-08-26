@@ -1,18 +1,22 @@
-import { expect } from 'chai'
-import { getTableInfo } from '../src/aggregation/superToken'
+// MUST be first
+// for testing
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { expect, assert } from 'chai'
+import { getTableInfo } from '../src/aggregation/superToken/index'
 import {
 	getFlowState,
 	getTransfers
 } from '../src/aggregation/superToken/accounting'
 import { graphEndpoint } from '../src/constants/theGraphEndpoint'
-import { chainNameToId } from '../src/helpers/network'
 import {
 	ethNow,
 	ethToUnixTime,
 	getSecondsIn,
 	roundDownToDay
 } from '../src/helpers/time'
-import { AccountToken } from '../src/superTokenTypes'
+import { AccountToken } from '../src/types'
 
 // tests container
 describe('superTokens.ts tests', () => {
@@ -32,14 +36,19 @@ describe('superTokens.ts tests', () => {
 	})
 
 	it('calling getTableInfo()', async () => {
-		// call async function
+		const address = process.env.ADDRESS
 		// check for error now
-		await getTableInfo(
-			'',
-			'polygon-pos',
-			Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
-			Date.now()
-		)
+		if (typeof address === 'string') {
+			await getTableInfo(
+				address.toLowerCase(),
+				'polygon-pos',
+				Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
+				Date.now()
+			)
+			assert.ok(true)
+		} else {
+			throw Error('dotenv failed to load')
+		}
 	})
 
 	it('checking getFlowState()', () => {
@@ -55,11 +64,7 @@ describe('superTokens.ts tests', () => {
 				flows: []
 			}
 		]
-		const flowState = getFlowState(
-			day,
-			accountTokens,
-			chainNameToId('polygon-pos')
-		)
+		const flowState = getFlowState(day, accountTokens, 'polygon-pos')
 		expect(flowState).to.have.length(0)
 	})
 
@@ -76,11 +81,7 @@ describe('superTokens.ts tests', () => {
 				flows: []
 			}
 		]
-		const flowState = getTransfers(
-			day,
-			accountTokens,
-			chainNameToId('polygon-pos')
-		)
+		const flowState = getTransfers(day, accountTokens, 'polygon-pos')
 		expect(flowState).to.have.length(0)
 	})
 })

@@ -1,7 +1,8 @@
 import { expect } from 'chai'
 import Communicator from '../src/database/dbCommunicator'
 import mongoose from 'mongoose'
-import { TestDocumentType } from '../src/DBTypes'
+import { TestDocumentType } from '../src/types'
+import { assert } from 'chai'
 
 //document I will be adding and looking up
 const myDoc: TestDocumentType = {
@@ -14,11 +15,11 @@ describe('dbCommunicator tests', () => {
 		Communicator.ConnectToDB()
 			.then(() => {
 				//successfully connected
-				expect(true).equals(true)
+				assert.ok(true)
 			})
 			.catch(err => {
 				console.log(err) //failed for some reason
-				expect(true).equals(false) //force a failure
+				assert.ok(false) //force a failure
 			})
 	})
 
@@ -26,14 +27,14 @@ describe('dbCommunicator tests', () => {
 		Communicator.AddDataToTestCollection(myDoc)
 			.then((docAdded: mongoose.Document) => {
 				if (docAdded == undefined) {
-					expect(true).equals(false) //force a failure
+					assert.ok(false) //force a failure
 				} else {
-					expect(true).equals(true)
+					assert.ok(true)
 				}
 			})
 			.catch((err: string) => {
 				console.log(err) //failed for some reason
-				expect(true).equals(false) //force a failure
+				assert.ok(false) //force a failure
 			})
 	})
 
@@ -41,10 +42,11 @@ describe('dbCommunicator tests', () => {
 		Communicator.GetAllDataFromTestCollection(myDoc)
 			.then((myFoundData: mongoose.Document[]) => {
 				expect(myFoundData).to.have.length.greaterThan(0)
+				assert.ok(true)
 			})
 			.catch((err: string) => {
 				console.log(err) //failed for some reason
-				expect(true).equals(false) //force a failure
+				assert.ok(false) //force a failure
 			})
 	})
 
@@ -52,10 +54,11 @@ describe('dbCommunicator tests', () => {
 		Communicator.GetOneDataFromTestCollection(myDoc)
 			.then((myFoundData: mongoose.Document) => {
 				expect(myFoundData).is.not.null
+				assert.ok(true)
 			})
 			.catch((err: string) => {
 				console.log(err) //failed for some reason
-				expect(true).equals(false) //force a failure
+				assert.ok(false) //force a failure
 			})
 	})
 })
