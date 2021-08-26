@@ -3,14 +3,13 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { expect } from 'chai'
+import { expect, assert } from 'chai'
 import { getTableInfo } from '../src/aggregation/superToken/index'
 import {
 	getFlowState,
 	getTransfers
 } from '../src/aggregation/superToken/accounting'
 import { graphEndpoint } from '../src/constants/theGraphEndpoint'
-import { chainNameToId } from '../src/helpers/network'
 import {
 	ethNow,
 	ethToUnixTime,
@@ -46,6 +45,7 @@ describe('superTokens.ts tests', () => {
 				Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
 				Date.now()
 			)
+			assert.ok(true)
 		} else {
 			throw Error('dotenv failed to load')
 		}

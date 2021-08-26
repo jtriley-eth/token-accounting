@@ -111,6 +111,7 @@ export const getSuperTokens = async (
 			return accountTokens
 		})
 		.catch(error => {
-			throw error
+			console.error(error)
+			return []
 		})
 }

@@ -82,11 +82,13 @@ interface QueryTransfer {
 		timestamp: string
 	}
 	to: {
+		id: string
 		account: {
 			id: string
 		}
 	}
 	from: {
+		id: string
 		account: {
 			id: string
 		}
@@ -118,10 +120,12 @@ interface QueryFlow {
 }
 
 export interface QueryAccountToken {
+	id: string
 	token: QueryToken
 	inTransfers: Array<QueryTransfer>
 	outTransfers: Array<QueryTransfer>
 	flows: {
+		id: string // THIS IS NOT A FLOW ID. THIS IS TO SHUT UP THE APOLLO CLIENT
 		inFlows: Array<QueryFlow>
 		outFlows: Array<QueryFlow>
 	}

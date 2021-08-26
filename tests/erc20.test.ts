@@ -3,6 +3,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import { getTransactionsAsync } from '../src/aggregation/erc20'
+import { assert } from 'chai'
 
 describe('erc20 tests', () => {
 	it('getTransactionsAsync (mainnet)', async () => {
@@ -10,12 +11,8 @@ describe('erc20 tests', () => {
 		const apiKey = process.env.ETHERSCAN_KEY
 
 		if (typeof address === 'string' && typeof apiKey === 'string') {
-			const transfers = await getTransactionsAsync(
-				address,
-				'ethereum',
-				apiKey
-			)
-			console.log(transfers)
+			await getTransactionsAsync(address, 'ethereum', apiKey)
+			assert.ok(true)
 		} else {
 			throw Error('dotenv failed to load')
 		}
@@ -26,12 +23,8 @@ describe('erc20 tests', () => {
 		const apiKey = process.env.POLYGON_KEY
 
 		if (typeof address === 'string' && typeof apiKey === 'string') {
-			const transfers = await getTransactionsAsync(
-				address,
-				'polygon-pos',
-				apiKey
-			)
-			console.log(transfers)
+			await getTransactionsAsync(address, 'polygon-pos', apiKey)
+			assert.ok(true)
 		} else {
 			throw Error('dotenv failed to load')
 		}
@@ -40,8 +33,8 @@ describe('erc20 tests', () => {
 	it('xdaiErc20 (xdai)', async () => {
 		const address = process.env.ADDRESS
 		if (typeof address === 'string') {
-			const transfers = await getTransactionsAsync(address, 'xdai')
-			console.log(transfers)
+			await getTransactionsAsync(address, 'xdai')
+			assert.ok(true)
 		} else {
 			throw Error('dotenv failed to load')
 		}

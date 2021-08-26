@@ -48,7 +48,7 @@ const GetAverageCoinPrice = async (input: CoinHistoryInputContract) => {
 		)
 		.then(res => {
 			if (res.data == undefined) {
-				return 0
+				throw Error('result is undefined')
 			} else {
 				//loop through all prices and calculate the average
 				let prices: Array<Array<number>> = res.data.prices

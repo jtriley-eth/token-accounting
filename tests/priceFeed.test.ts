@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { CoinHistoryInput, CoinHistoryInputContract } from '../src/types'
 import PriceFeeder from '../src/aggregation/priceFeed'
+import { assert } from 'chai'
 
 describe('Price Feeder Tests', () => {
 	// test async
@@ -36,7 +37,8 @@ describe('Price Feeder Tests', () => {
 		}
 
 		// call async function
-		console.log(await PriceFeeder.GetAverageCoinPrice(input2))
+		await PriceFeeder.GetAverageCoinPrice(input2)
+		assert.ok(true)
 	})
 
 	// Testing contract from polygon
@@ -47,7 +49,8 @@ describe('Price Feeder Tests', () => {
 			vs_currency: 'usd',
 			daysBack: '3'
 		}
-		console.log(await PriceFeeder.GetAverageCoinPrice(params))
+		await PriceFeeder.GetAverageCoinPrice(params)
+		assert.ok(true)
 
 		// call function with params
 		// avg price for that day
@@ -56,11 +59,12 @@ describe('Price Feeder Tests', () => {
 	it('checking xdai for WETH', async () => {
 		const params: CoinHistoryInputContract = {
 			id: 'xdai',
-			contract_address: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+			contract_address: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
 			vs_currency: 'usd',
 			daysBack: '3'
 		}
-		console.log(await PriceFeeder.GetAverageCoinPrice(params))
+		await PriceFeeder.GetAverageCoinPrice(params)
+		assert.ok(true)
 
 		// call function with params
 		// avg price for that day
