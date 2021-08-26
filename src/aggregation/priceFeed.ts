@@ -1,6 +1,6 @@
 // 1. Import coingecko-api
 import { CoinGeckoClient } from 'coingecko-api-v3'
-import { CoinHistoryInput, CoinHistoryInputContract } from '../priceFeedTypes'
+import { CoinHistoryInput, CoinHistoryInputContract } from '../types'
 import axios from 'axios'
 import BN from 'bn.js'
 

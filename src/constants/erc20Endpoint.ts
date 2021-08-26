@@ -1,4 +1,4 @@
-import { ChainName } from '../superTokenTypes'
+import { ChainName } from '../types'
 
 export const etherscanUrl = 'https://api.etherscan.io'
 export const maticUrl = 'https://api.polygonscan.com'

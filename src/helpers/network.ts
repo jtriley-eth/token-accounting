@@ -1,4 +1,4 @@
-import { ChainId, ChainName } from '../superTokenTypes'
+import { ChainId, ChainName } from '../types'
 
 export const chainIdToName = (id: ChainId): ChainName => {
 	switch (id) {

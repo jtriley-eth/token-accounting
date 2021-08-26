@@ -11,7 +11,7 @@ import {
 	TokenEvent,
 	FlowEvent,
 	ChainName
-} from '../../superTokenTypes'
+} from '../../types'
 import { graphEndpoint } from '../../constants/theGraphEndpoint'
 
 export const getSuperTokens = async (

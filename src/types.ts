@@ -1,21 +1,141 @@
-// Flow State Types
-export type ChainName =
-	| 'xdai'
-	| 'matic'
-	| 'mumbai'
-	| 'goerli'
-	| 'ropsten'
-	| 'kovan'
-	| 'rinkeby'
-
-export interface TimeFrame {
-	start: number
-	end: number
+// PRICE FEEDS
+export interface CoinHistoryInput {
+	id: string // bitcoin, etherium,etc
+	vs_currency: string // usd,eur,etc
+	from: number // unix
+	to: number // unix
 }
+
+export interface CoinHistoryInputContract {
+	id: 'ethereum' | 'polygon-pos' | 'xdai' // of the the asset platform (etherium,xdai, etc. )
+	contract_address: string
+	vs_currency: string // usd, etc
+	daysBack: string
+}
+
+// DB TYPES
+export interface TestDocumentType {
+	price: string
+	other: number
+}
+
+// QUERY RETURN TYPES
+
+// polygon-pos and ethereum
+export interface QueryERC20Transfer {
+	blockNumber: string
+	timeStamp: string
+	hash: string
+	nonce: string
+	blockHash: string
+	from: string
+	contractAddress: string
+	to: string
+	value: string
+	tokenName: string
+	tokenSymbol: string
+	tokenDecimal: string
+	transactionIndex: string
+	gas: string
+	gasPrice: string
+	gasUsed: string
+	cumulativeGasUsed: string
+	input?: string
+	confirmations: string
+}
+
+// xdai (small, but breaking diffs)
+export interface QueryxDaiTransfer {
+	value: string
+	blockHash: string
+	blockNumber: string
+	confirmations: string
+	contractAddress: string
+	cumulativeGasUsed: string
+	from: string
+	gas: string
+	gasPrice: string
+	gasUsed: string
+	hash: string
+	input: string
+	logIndex: string
+	nonce: string
+	timeStamp: string
+	to: string
+	tokenDecimal: string
+	tokenName: string
+	tokenSymbol: string
+	transactionIndex: string
+}
+
+interface QueryToken {
+	id: string
+	name: string
+	symbol: string
+	underlyingAddress: string
+}
+
+interface QueryTransfer {
+	id: string
+	transaction: {
+		id: string
+		timestamp: string
+	}
+	to: {
+		account: {
+			id: string
+		}
+	}
+	from: {
+		account: {
+			id: string
+		}
+	}
+	value: string
+}
+
+interface QueryFlowEvent {
+	id: string
+	transaction: {
+		id: string
+		timestamp: string
+	}
+	oldFlowRate: string
+	flowRate: string
+}
+
+interface QueryFlow {
+	id: string
+	flowRate: string
+	lastUpdate: string
+	owner: {
+		id: string
+	}
+	recipient: {
+		id: string
+	}
+	events: Array<QueryFlowEvent>
+}
+
+export interface QueryAccountToken {
+	token: QueryToken
+	inTransfers: Array<QueryTransfer>
+	outTransfers: Array<QueryTransfer>
+	flows: {
+		inFlows: Array<QueryFlow>
+		outFlows: Array<QueryFlow>
+	}
+}
+
+// INPUT
+export type ChainName = 'xdai' | 'polygon-pos' | 'ethereum'
+
+export type ChainId = '0x64' | '0x89' | '0x01'
 
 export interface TransferEvent {
 	id: string
 	timestamp: number
+	txHash: string
 	sender: string
 	recipient: string
 	value: string
@@ -25,6 +145,7 @@ export interface TransferEvent {
 export interface FlowEvent {
 	id: string
 	timestamp: number
+	txHash: string
 	sender: string
 	recipient: string
 	oldFlowRate: string
@@ -50,63 +171,73 @@ export interface TokenMetadata {
 
 export interface AccountToken {
 	metadata: TokenMetadata
-	events: TokenEvent[]
-	flows: Flow[]
+	events: Array<TokenEvent>
+	flows: Array<Flow>
 }
 
-// The Graph Query Types
-export interface QueryToken {
-	id: string
-	name: string
-	symbol: string
+export interface UserState {
+	address: string
+	chain: ChainName
+	isDark: boolean
+	tokens: Array<AccountToken>
 }
 
-export interface QueryTransfer {
-	id: string
-	transaction: {
-		timestamp: string
-	}
-	to: {
-		account: {
-			id: string
-		}
-	}
-	from: {
-		account: {
-			id: string
-		}
-	}
-	value: string
+// TYPE GUARDS
+export function isTransferEvent(event: TokenEvent): event is TransferEvent {
+	return event.type === 'transfer'
 }
 
-export interface QueryFlowEvent {
+export function isFlowEvent(event: TokenEvent): event is FlowEvent {
+	return event.type === 'flow'
+}
+
+// OUTPUT
+export interface OutputFlowEvent {
 	id: string
 	transaction: {
+		id: string
 		timestamp: string
 	}
 	oldFlowRate: string
-	flowRate: string
+	newFlowRate: string
+	flow: {
+		id: string
+		sender: {
+			id: string
+		}
+		recipient: {
+			id: string
+		}
+	}
 }
 
-export interface QueryFlow {
-	id: string
-	flowRate: string
-	lastUpdate: string
-	owner: {
-		id: string
-	}
-	recipient: {
-		id: string
-	}
-	events: QueryFlowEvent[]
+export interface OutputFlow {
+	date: number
+	start: number
+	end: number
+	sender: string
+	recipient: string
+	networkId: string
+	txHash: string
+	amountToken: string
+	amountFiat: string
+	exchangeRate: string
+	token: TokenMetadata
 }
 
-export interface QueryAccountToken {
-	token: QueryToken
-	inTransfers: QueryTransfer[]
-	outTransfers: QueryTransfer[]
-	flows: {
-		inFlows: QueryFlow[]
-		outFlows: QueryFlow[]
-	}
+export interface OutputTransfer {
+	date: number
+	sender: string
+	recipient: string
+	txHash: string
+	networkId: ChainName
+	amountToken: string
+	amountFiat: string
+	exchangeRate: string
+	token: TokenMetadata
+}
+
+export interface TableData {
+	flowState: Array<OutputFlow>
+	transfers: Array<OutputTransfer>
 }

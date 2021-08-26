@@ -6,7 +6,7 @@ import {
 	OutputTransfer,
 	isTransferEvent,
 	ChainName
-} from '../../superTokenTypes'
+} from '../../types'
 import { getSecondsIn } from '../../helpers/time'
 import BN from 'bn.js'
 

@@ -5,7 +5,7 @@ import {
 	OutputTransfer,
 	QueryERC20Transfer,
 	QueryxDaiTransfer
-} from '../superTokenTypes'
+} from '../types'
 
 export const getTransactionsAsync = async (
 	address: string,

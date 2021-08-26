@@ -1,12 +1,7 @@
 import { getFlowState, getTransfers } from './accounting'
 import { getSuperTokens } from './api'
 import { unixToEthTime, roundDownToDay, getSecondsIn } from '../../helpers/time'
-import {
-	ChainName,
-	OutputFlow,
-	OutputTransfer,
-	TableData
-} from '../../superTokenTypes'
+import { ChainName, OutputFlow, OutputTransfer, TableData } from '../../types'
 
 export const getTableInfo = async (
 	address: string,
