@@ -8,9 +8,8 @@ export interface CoinHistoryInput {
 }
 
 export interface CoinHistoryInputContract {
-	id: PLATFORMS // of the the asset platform (etherium,xdai, etc. )
+	id: 'ethereum' | 'polygon-pos' | 'xdai' // of the the asset platform (etherium,xdai, etc. )
 	contract_address: string
 	vs_currency: string // usd, etc
-	from?: number | undefined
-	to: number
+	daysBack: string
 }
