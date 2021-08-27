@@ -16,7 +16,7 @@ describe('Price Feeder Tests', () => {
 	it('checking priceFeeder getACoinsHistory()', async () => {
 		const input: CoinHistoryInput = {
 			id: 'ethereum',
-			vs_currency: 'usd',
+			vsCurrency: 'usd',
 			from: 1609459200,
 			to: 1629163698
 		}
@@ -31,13 +31,13 @@ describe('Price Feeder Tests', () => {
 	it('checking priceFeeder average price using polygon-pos for GRT', async () => {
 		const input2: CoinHistoryInputContract = {
 			id: 'polygon-pos',
-			contract_address: '0x5fe2b58c013d7601147dcdd68c143a77499f5531',
-			vs_currency: 'usd',
+			contractAddress: '0x5fe2b58c013d7601147dcdd68c143a77499f5531',
+			vsCurrency: 'usd',
 			daysBack: '14'
 		}
 
 		// call async function
-		await PriceFeeder.GetAverageCoinPrice(input2)
+		await PriceFeeder.getAverageCoinPrice(input2)
 		assert.ok(true)
 	})
 
@@ -45,11 +45,11 @@ describe('Price Feeder Tests', () => {
 	it('checking ethereum for Tether', async () => {
 		const params: CoinHistoryInputContract = {
 			id: 'ethereum',
-			contract_address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-			vs_currency: 'usd',
+			contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+			vsCurrency: 'usd',
 			daysBack: '3'
 		}
-		await PriceFeeder.GetAverageCoinPrice(params)
+		await PriceFeeder.getAverageCoinPrice(params)
 		assert.ok(true)
 
 		// call function with params
@@ -59,11 +59,11 @@ describe('Price Feeder Tests', () => {
 	it('checking xdai for WETH', async () => {
 		const params: CoinHistoryInputContract = {
 			id: 'xdai',
-			contract_address: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
-			vs_currency: 'usd',
+			contractAddress: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+			vsCurrency: 'usd',
 			daysBack: '3'
 		}
-		await PriceFeeder.GetAverageCoinPrice(params)
+		await PriceFeeder.getAverageCoinPrice(params)
 		assert.ok(true)
 
 		// call function with params

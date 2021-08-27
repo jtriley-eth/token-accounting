@@ -16,7 +16,9 @@ query ($userAddress: ID!) {
             name
             symbol
         }
-        inTransfers: transferEventsReceived (first: 1000) {
+        inTransfers: transferEventsReceived (
+            first: 1000
+        ) {
             id
             transaction {
                 id
@@ -36,7 +38,9 @@ query ($userAddress: ID!) {
             }
             value
         }
-        outTransfers: transferEventsSent (first: 1000) {
+        outTransfers: transferEventsSent (
+            first: 1000
+        ) {
             id
             transaction {
                 id
@@ -107,6 +111,39 @@ query ($userAddress: ID!) {
                     oldFlowRate
                     flowRate
                 }
+            }
+        }
+        gradeEvents: account(
+            id: $userAddress
+        ) {
+            id
+            upgradeEvents (first:1000) {
+                id
+                transaction {
+                    id
+                    timestamp
+                }
+                token {
+                    id
+                    symbol
+                    name
+                    underlyingAddress
+                }
+                amount
+            }
+            downgradeEvents (first:1000) {
+                id
+                transaction {
+                    id
+                    timestamp
+                }
+                token {
+                    id
+                    symbol
+                    name
+                    underlyingAddress
+                }
+                amount
             }
         }
     }

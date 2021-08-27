@@ -1,15 +1,31 @@
+// TOKEN METADATA
+export interface ERC20Metadata {
+	id: string
+	name: string
+	symbol: string
+}
+
+export interface SuperTokenMetadata {
+	id: string
+	name: string
+	symbol: string
+	underlyingAddress: string
+}
+
+export type TokenMetadata = ERC20Metadata | SuperTokenMetadata
+
 // PRICE FEEDS
 export interface CoinHistoryInput {
 	id: string // bitcoin, etherium,etc
-	vs_currency: string // usd,eur,etc
+	vsCurrency: string // usd,eur,etc
 	from: number // unix
 	to: number // unix
 }
 
 export interface CoinHistoryInputContract {
-	id: 'ethereum' | 'polygon-pos' | 'xdai' // of the the asset platform (etherium,xdai, etc. )
-	contract_address: string
-	vs_currency: string // usd, etc
+	id: ChainName // of the the asset platform (etherium,xdai, etc. )
+	contractAddress: string
+	vsCurrency: string // usd, etc
 	daysBack: string
 }
 
@@ -20,8 +36,7 @@ export interface TestDocumentType {
 }
 
 // QUERY RETURN TYPES
-
-// polygon-pos and ethereum
+// polygon-pos and ethereum ERC20
 export interface QueryERC20Transfer {
 	blockNumber: string
 	timeStamp: string
@@ -44,7 +59,7 @@ export interface QueryERC20Transfer {
 	confirmations: string
 }
 
-// xdai (small, but breaking diffs)
+// xdai (small, but breaking diffs) ERC20
 export interface QueryxDaiTransfer {
 	value: string
 	blockHash: string
@@ -68,6 +83,7 @@ export interface QueryxDaiTransfer {
 	transactionIndex: string
 }
 
+// The Graph
 interface QueryToken {
 	id: string
 	name: string
@@ -119,15 +135,32 @@ interface QueryFlow {
 	events: Array<QueryFlowEvent>
 }
 
+interface QueryGradeEvent {
+	id: string
+	transaction: {
+		id: string
+		timestamp: string
+	}
+	token: QueryToken
+	amount: string
+}
+
 export interface QueryAccountToken {
 	id: string
 	token: QueryToken
 	inTransfers: Array<QueryTransfer>
 	outTransfers: Array<QueryTransfer>
 	flows: {
-		id: string // THIS IS NOT A FLOW ID. THIS IS TO SHUT UP THE APOLLO CLIENT
+		// NOT valid ID, just preventing Apollo ID crash.
+		id: string
 		inFlows: Array<QueryFlow>
 		outFlows: Array<QueryFlow>
+	}
+	gradeEvents: {
+		// NOT valid ID, just preventing Apollo ID crash.
+		id: string
+		upgradeEvents: Array<QueryGradeEvent>
+		downgradeEvents: Array<QueryGradeEvent>
 	}
 }
 
@@ -167,16 +200,26 @@ export interface Flow {
 	recipient: string
 }
 
-export interface TokenMetadata {
+export interface GradeEvent {
 	id: string
-	name: string
-	symbol: string
+	transaction: {
+		id: string
+		timestamp: number
+	}
+	token: SuperTokenMetadata
+	amount: string
+}
+
+export interface GradeEvents {
+	upgradeEvents: Array<GradeEvent>
+	downgradeEvents: Array<GradeEvent>
 }
 
 export interface AccountToken {
-	metadata: TokenMetadata
+	metadata: SuperTokenMetadata
 	events: Array<TokenEvent>
 	flows: Array<Flow>
+	gradeEvents: GradeEvents
 }
 
 export interface UserState {
@@ -193,6 +236,18 @@ export function isTransferEvent(event: TokenEvent): event is TransferEvent {
 
 export function isFlowEvent(event: TokenEvent): event is FlowEvent {
 	return event.type === 'flow'
+}
+
+export function isERC20TokenMetadata(
+	token: TokenMetadata
+): token is ERC20Metadata {
+	return !token.hasOwnProperty('underlyingAddress')
+}
+
+export function isSuperTokenMetadata(
+	token: TokenMetadata
+): token is SuperTokenMetadata {
+	return token.hasOwnProperty('underlyingAddress')
 }
 
 // OUTPUT
@@ -221,12 +276,12 @@ export interface OutputFlow {
 	end: number
 	sender: string
 	recipient: string
-	networkId: string
+	networkId: ChainName
 	txHash: string
 	amountToken: string
 	amountFiat: string
 	exchangeRate: string
-	token: TokenMetadata
+	token: SuperTokenMetadata
 }
 
 export interface OutputTransfer {
@@ -244,4 +299,5 @@ export interface OutputTransfer {
 export interface TableData {
 	flowState: Array<OutputFlow>
 	transfers: Array<OutputTransfer>
+	gradeEvents: Array<GradeEvent>
 }

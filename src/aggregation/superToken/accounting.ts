@@ -1,11 +1,11 @@
 import {
 	isFlowEvent,
 	AccountToken,
-	TokenMetadata,
 	OutputFlow,
 	OutputTransfer,
 	isTransferEvent,
-	ChainName
+	ChainName,
+	SuperTokenMetadata
 } from '../../types'
 import { getSecondsIn } from '../../helpers/time'
 import BN from 'bn.js'
@@ -23,7 +23,7 @@ export const getFlowState = (
 		recipient: string
 		txHash: string
 		flowRate: string
-		token: TokenMetadata
+		token: SuperTokenMetadata
 		flowRateChanges: Array<{
 			// ONLY FOR CHANGES *DURING* DAY
 			timestamp: number

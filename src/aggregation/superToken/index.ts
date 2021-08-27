@@ -1,9 +1,15 @@
 import { getFlowState, getTransfers } from './accounting'
 import { getSuperTokens } from './api'
 import { unixToEthTime, roundDownToDay, getSecondsIn } from '../../helpers/time'
-import { ChainName, OutputFlow, OutputTransfer, TableData } from '../../types'
+import {
+	ChainName,
+	GradeEvent,
+	OutputFlow,
+	OutputTransfer,
+	TableData
+} from '../../types'
 
-export const getTableInfo = async (
+export const getSuperTokenDataAsync = async (
 	address: string,
 	networkId: ChainName,
 	start: number,
@@ -43,5 +49,13 @@ export const getTableInfo = async (
 		return a.token.symbol < b.token.symbol ? 1 : -1
 	})
 
-	return { flowState, transfers }
+	const gradeEvents = superTokens.reduce(
+		(gradeEvents: Array<GradeEvent>, superToken) => {
+			const { upgradeEvents, downgradeEvents } = superToken.gradeEvents
+			return gradeEvents.concat(upgradeEvents).concat(downgradeEvents)
+		},
+		[]
+	)
+
+	return { flowState, transfers, gradeEvents }
 }

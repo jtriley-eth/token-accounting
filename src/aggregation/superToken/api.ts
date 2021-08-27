@@ -10,7 +10,8 @@ import {
 	Flow,
 	TokenEvent,
 	FlowEvent,
-	ChainName
+	ChainName,
+	GradeEvents
 } from '../../types'
 import { graphEndpoint } from '../../constants/theGraphEndpoint'
 
@@ -43,11 +44,9 @@ export const getSuperTokens = async (
 
 			const accountTokens = queryAccountTokens.map(
 				(accountToken): AccountToken => {
-					const { token, inTransfers, outTransfers } = accountToken
-					// underlyingAddress refers to the ID of the base token, NOT
-					// the Super Token. Coin Gecko requires the underlying
-					// address for price conversions
-					const { underlyingAddress: id, name, symbol } = token
+					const { token, inTransfers, outTransfers, gradeEvents } =
+						accountToken
+					const { id, name, symbol, underlyingAddress } = token
 					// Destructured this way to prevent 'flows' naming collision
 					const { inFlows, outFlows } = accountToken.flows
 					const allFlows = inFlows.concat(outFlows)
@@ -97,14 +96,43 @@ export const getSuperTokens = async (
 					)
 
 					const events = flowEvents.concat(transferEvents)
+
+					const upgradeEvents = gradeEvents.upgradeEvents.map(
+						event => ({
+							id: event.id,
+							transaction: {
+								id: event.transaction.id,
+								timestamp: parseInt(event.transaction.timestamp)
+							},
+							token: event.token,
+							amount: event.amount
+						})
+					)
+
+					const downgradeEvents = gradeEvents.downgradeEvents.map(
+						event => ({
+							id: event.id,
+							transaction: {
+								id: event.transaction.id,
+								timestamp: parseInt(event.transaction.timestamp)
+							},
+							token: event.token,
+							amount: event.amount
+						})
+					)
 					return {
 						metadata: {
 							id,
 							name,
-							symbol
+							symbol,
+							underlyingAddress
 						},
 						events,
-						flows
+						flows,
+						gradeEvents: {
+							upgradeEvents,
+							downgradeEvents
+						}
 					}
 				}
 			)
