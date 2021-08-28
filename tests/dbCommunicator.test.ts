@@ -5,11 +5,6 @@ import { AccountDocumentType, TestDocumentType } from '../src/types'
 import { assert } from 'chai'
 
 //document I will be adding and looking up
-const myDoc: TestDocumentType = {
-	price: '100.00',
-	other: 1
-}
-
 const dummyData: AccountDocumentType = {
 	address: '0x00000000000000000000000000000000',
 	flowState: [
@@ -129,67 +124,28 @@ describe('dbCommunicator tests', () => {
 			})
 	})
 
-	// it('checking AddDataToTestCollection', async () => {
-	// 	Communicator.AddDataToTestCollection(myDoc)
-	// 		.then((docAdded: mongoose.Document) => {
-	// 			if (docAdded == undefined) {
-	// 				assert.ok(false) //force a failure
-	// 			} else {
-	// 				assert.ok(true)
-	// 			}
-	// 		})
-	// 		.catch((err: string) => {
-	// 			console.log(err) //failed for some reason
-	// 			assert.ok(false) //force a failure
-	// 		})
-	// })
-
-	// it('checking GetAllDataFromTestCollection', async () => {
-	// 	Communicator.GetAllDataFromTestCollection(myDoc)
-	// 		.then((myFoundData: mongoose.Document[]) => {
-	// 			expect(myFoundData).to.have.length.greaterThan(0)
-	// 			assert.ok(true)
-	// 		})
-	// 		.catch((err: string) => {
-	// 			console.log(err) //failed for some reason
-	// 			assert.ok(false) //force a failure
-	// 		})
-	// })
-
-	// it('checking GetOneDataFromTestCollection', async () => {
-	// 	Communicator.GetOneDataFromTestCollection(myDoc)
-	// 		.then((myFoundData: mongoose.Document) => {
-	// 			expect(myFoundData).is.not.null
-	// 			assert.ok(true)
-	// 		})
-	// 		.catch((err: string) => {
-	// 			console.log(err) //failed for some reason
-	// 			assert.ok(false) //force a failure
-	// 		})
-	// })
-
 	it('checking AddAccountData', async () => {
 		await Communicator.AddAccountData(dummyData)
 			.then((myFoundData: mongoose.Document) => {
-				console.log(myFoundData)
-				// expect(myFoundData).is.not.null
-				// assert.ok(true)
+				//console.log(myFoundData)
+				expect(myFoundData).is.not.null
+				assert.ok(true)
 			})
 			.catch((err: string) => {
 				console.log(err) //failed for some reason
-				//assert.ok(false) //force a failure
+				assert.ok(false) //force a failure
 			})
 	})
 
-	// it('checking GetAccountData', async () => {
-	// 	Communicator.GetAccountData()
-	// 		.then((myFoundData: mongoose.Document) => {
-	// 			expect(myFoundData).is.not.null
-	// 			assert.ok(true)
-	// 		})
-	// 		.catch((err: string) => {
-	// 			console.log(err) //failed for some reason
-	// 			assert.ok(false) //force a failure
-	// 		})
-	// })
+	it('checking GetAccountData', async () => {
+		const addressToFind = '0x00000000000000000000000000000000'
+		await Communicator.GetAccountData(addressToFind)
+			.then((myFoundData: mongoose.Document) => {
+				assert.ok(true)
+			})
+			.catch((err: string) => {
+				console.log(err) //failed for some reason
+				assert.ok(false) //force a failure
+			})
+	})
 })
