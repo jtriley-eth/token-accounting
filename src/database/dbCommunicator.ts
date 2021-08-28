@@ -1,14 +1,12 @@
 import mongoose from 'mongoose'
 import testModel from './models/testModel'
 import { AccountDocumentType, TestDocumentType } from '../types'
-import accountModel from './models/testModel'
+import accountModel from './models/accountModel'
 
 // const url = 'mongodb+srv://flowstate:flowstate@mycluster.5rvrq.mongodb.net/flowstateAccounting?retryWrites=true&w=majority'
 
-const url = 'mongodb://127.0.0.1:27017/myDatabase'
-
 const ConnectToDB = async () => {
-	return mongoose.connect(url, {
+	return mongoose.connect(DB_URL, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	})
