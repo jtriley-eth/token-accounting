@@ -65,7 +65,8 @@ const getAverageCoinPrice = async (
 			}
 		})
 		.catch(err => {
-			throw err
+			console.log(err.toJSON().message)
+			return '0'
 		})
 }
 

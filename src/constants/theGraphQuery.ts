@@ -15,6 +15,7 @@ query ($userAddress: ID!) {
             id
             name
             symbol
+            underlyingAddress
         }
         inTransfers: transferEventsReceived (
             first: 1000

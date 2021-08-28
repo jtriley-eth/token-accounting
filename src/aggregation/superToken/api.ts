@@ -40,7 +40,6 @@ export const getSuperTokens = async (
 		.then(data => {
 			const queryAccountTokens: Array<QueryAccountToken> =
 				data.data.accountTokens
-			console.log('queryAccountTokens: ', queryAccountTokens)
 
 			const accountTokens = queryAccountTokens.map(
 				(accountToken): AccountToken => {
