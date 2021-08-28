@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import Communicator from '../src/database/dbCommunicator'
 import mongoose from 'mongoose'
-import { TestDocumentType } from '../src/types'
+import { AccountDocumentType, TestDocumentType } from '../src/types'
 import { assert } from 'chai'
 
 //document I will be adding and looking up
@@ -52,6 +52,30 @@ describe('dbCommunicator tests', () => {
 
 	it('checking GetOneDataFromTestCollection', async () => {
 		Communicator.GetOneDataFromTestCollection(myDoc)
+			.then((myFoundData: mongoose.Document) => {
+				expect(myFoundData).is.not.null
+				assert.ok(true)
+			})
+			.catch((err: string) => {
+				console.log(err) //failed for some reason
+				assert.ok(false) //force a failure
+			})
+	})
+
+	it('checking AddAccountData', async () => {
+		Communicator.AddAccountData()
+			.then((myFoundData: mongoose.Document) => {
+				expect(myFoundData).is.not.null
+				assert.ok(true)
+			})
+			.catch((err: string) => {
+				console.log(err) //failed for some reason
+				assert.ok(false) //force a failure
+			})
+	})
+
+	it('checking GetAccountData', async () => {
+		Communicator.GetAccountData()
 			.then((myFoundData: mongoose.Document) => {
 				expect(myFoundData).is.not.null
 				assert.ok(true)
