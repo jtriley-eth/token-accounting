@@ -35,6 +35,13 @@ export interface TestDocumentType {
 	other: number
 }
 
+export interface AccountDocumentType {
+	address: string
+	flowState: Array<OutputFlow>
+	transfers: Array<OutputTransfer>
+	gradeEvents: Array<GradeEvent>
+}
+
 // QUERY RETURN TYPES
 // polygon-pos and ethereum ERC20
 export interface QueryERC20Transfer {
