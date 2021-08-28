@@ -37,6 +37,22 @@ const accountSchema = new Schema({
 				name: String
 			}
 		}
+	],
+	gradeEvents: [
+		{
+			id: String,
+			transaction: {
+				id: String,
+				timestamp: Number
+			},
+			token: {
+				id: String,
+				symbol: String,
+				name: String,
+				underlyingAddress: String
+			},
+			amount: String
+		}
 	]
 })
 
