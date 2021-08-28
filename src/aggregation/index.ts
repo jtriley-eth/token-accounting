@@ -7,7 +7,7 @@ import {
 	isSuperTokenMetadata,
 	OutputFlow,
 	OutputTransfer,
-	TableData
+	AccountDocumentType
 } from '../types'
 import Decimal from 'decimal.js'
 
@@ -20,7 +20,7 @@ export const aggregateDataAsync = async (
 	addresses: Array<string>,
 	start?: number,
 	end?: number
-): Promise<Array<TableData>> => {
+): Promise<Array<AccountDocumentType>> => {
 	if (
 		typeof etherscanKey === 'undefined' ||
 		typeof polygonKey === 'undefined'
@@ -33,7 +33,7 @@ export const aggregateDataAsync = async (
 
 	// iterate through all addresses
 	console.log('start addresses')
-	let tableData: Array<TableData> = []
+	let tableData: Array<AccountDocumentType> = []
 	for await (const address of addresses) {
 		// iterate through tx data from xdai, polygon subgraphs
 		console.log('get superTokens')
@@ -41,7 +41,7 @@ export const aggregateDataAsync = async (
 			flowState,
 			transfers: superTransfers,
 			gradeEvents
-		}: TableData = await Promise.all([
+		}: AccountDocumentType = await Promise.all([
 			getSuperTokenDataAsync(address, 'polygon-pos', startTime, endTime),
 			getSuperTokenDataAsync(address, 'xdai', startTime, endTime)
 		]).then(data => {
@@ -49,7 +49,7 @@ export const aggregateDataAsync = async (
 			const flowState = data[0].flowState.concat(data[1].flowState)
 			const transfers = data[0].transfers.concat(data[1].transfers)
 			const gradeEvents = data[0].gradeEvents.concat(data[1].gradeEvents)
-			return { flowState, transfers, gradeEvents }
+			return { address, flowState, transfers, gradeEvents }
 		})
 
 		// iterate through erc20 transfers on ethereum, polygon, xdai
@@ -79,7 +79,7 @@ export const aggregateDataAsync = async (
 				)
 				return index === -1
 			})
-			.filter((transfer, idx, arr) => {
+			.filter(transfer => {
 				// SuperToken transfers show up on erc20 queries ¯\_(ツ)_/¯
 				// filtering if it's an erc20 transfer starting with 'super'
 				if (isERC20TokenMetadata(transfer.token)) {
@@ -143,15 +143,18 @@ export const aggregateDataAsync = async (
 			const tokenAmountD = new Decimal(transfer.amountToken).mul(
 				new Decimal(1e-18)
 			)
-			const amountFiat = tokenAmountD
-				.mul(new Decimal(exchangeRate))
-				.toString()
+			// if exchangeRate not found, it's set to -1, as is the amountFiat
+			const amountFiat =
+				exchangeRate !== '-1'
+					? tokenAmountD.mul(new Decimal(exchangeRate)).toString()
+					: '-1'
 
 			transfersWithPrice.push(
 				Object.assign({}, transfer, { amountFiat, exchangeRate })
 			)
 		}
 		tableData.push({
+			address,
 			flowState: flowStateWithPrice,
 			transfers: transfersWithPrice,
 			gradeEvents

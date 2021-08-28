@@ -10,8 +10,7 @@ import {
 	Flow,
 	TokenEvent,
 	FlowEvent,
-	ChainName,
-	GradeEvents
+	ChainName
 } from '../../types'
 import { graphEndpoint } from '../../constants/theGraphEndpoint'
 

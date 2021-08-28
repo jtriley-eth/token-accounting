@@ -6,7 +6,7 @@ import {
 	GradeEvent,
 	OutputFlow,
 	OutputTransfer,
-	TableData
+	AccountDocumentType
 } from '../../types'
 
 export const getSuperTokenDataAsync = async (
@@ -14,7 +14,7 @@ export const getSuperTokenDataAsync = async (
 	networkId: ChainName,
 	start: number,
 	end: number
-): Promise<TableData> => {
+): Promise<AccountDocumentType> => {
 	const startDay = unixToEthTime(roundDownToDay(start))
 	const endDay = unixToEthTime(roundDownToDay(end))
 	const secondsInDay = getSecondsIn('day')
@@ -57,5 +57,5 @@ export const getSuperTokenDataAsync = async (
 		[]
 	)
 
-	return { flowState, transfers, gradeEvents }
+	return { address, flowState, transfers, gradeEvents }
 }

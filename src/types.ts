@@ -302,9 +302,3 @@ export interface OutputTransfer {
 	exchangeRate: string
 	token: TokenMetadata
 }
-
-export interface TableData {
-	flowState: Array<OutputFlow>
-	transfers: Array<OutputTransfer>
-	gradeEvents: Array<GradeEvent>
-}
