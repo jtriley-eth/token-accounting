@@ -97,7 +97,7 @@ export const aggregateDataAsync = async (
 				(ethNow() - flow.date) / secondsInDay
 			).toString()
 			console.log('\tget price (flow)')
-			// 1.2 second rate limit
+			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
 			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
 				id: flow.networkId,
@@ -131,7 +131,7 @@ export const aggregateDataAsync = async (
 				: token.id
 			console.log('get price (transfer)')
 			console.log(`${JSON.stringify(transfer, null, 4)}`)
-			// 1.2 second rate limit
+			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
 			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
 				id: transfer.networkId,
