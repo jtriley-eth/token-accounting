@@ -15,7 +15,8 @@ const accountSchema = new Schema({
 			token: {
 				id: String,
 				symbol: String,
-				name: String
+				name: String,
+				underlyingAddress: String
 			}
 		}
 	],
@@ -34,7 +35,8 @@ const accountSchema = new Schema({
 			token: {
 				id: String,
 				symbol: String,
-				name: String
+				name: String,
+				underlyingAddress: String
 			}
 		}
 	],
