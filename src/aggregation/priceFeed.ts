@@ -28,20 +28,27 @@ const getAllCoins = async () => {
 
 // pull a specific coin's history
 const getACoinsHistory = async (input: CoinHistoryInput) => {
-	const data = await client.coinIdMarketChartRange(input)
+	const data = await client.coinIdMarketChartRange({
+		id: input.id,
+		vs_currency: input.vsCurrency,
+		from: input.from,
+		to: input.to
+	})
 	return data
 }
 
 // get coin history via contract address and num days back
-const GetAverageCoinPrice = async (input: CoinHistoryInputContract) => {
+const getAverageCoinPrice = async (
+	input: CoinHistoryInputContract
+): Promise<string> => {
 	return axios
 		.get(
 			'https://api.coingecko.com/api/v3/coins/' +
 				input.id +
 				'/contract/' +
-				input.contract_address +
+				input.contractAddress +
 				'/market_chart/?vs_currency=' +
-				input.vs_currency +
+				input.vsCurrency +
 				'&days=' +
 				input.daysBack +
 				''
@@ -54,11 +61,12 @@ const GetAverageCoinPrice = async (input: CoinHistoryInputContract) => {
 				let prices: Array<Array<number>> = res.data.prices
 				const sum = prices.reduce((sum, item) => sum + item[1], 0)
 				const average = sum / prices.length
-				return average
+				return average.toString()
 			}
 		})
 		.catch(err => {
-			console.log(err)
+			console.log(err.toJSON().message)
+			return '0'
 		})
 }
 
@@ -66,7 +74,7 @@ const PriceFeeder = {
 	getACoinsHistory,
 	getAllCoins,
 	pingCoinGecko,
-	GetAverageCoinPrice
+	getAverageCoinPrice
 }
 
 export default PriceFeeder

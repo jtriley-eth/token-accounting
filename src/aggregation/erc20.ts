@@ -12,6 +12,8 @@ export const getTransactionsAsync = async (
 	chain: ChainName,
 	apiKey?: string
 ): Promise<Array<OutputTransfer>> => {
+	// 0.2 second rate limit
+	await new Promise(resolve => setTimeout(resolve, 200))
 	if (chain === 'xdai') {
 		return await xdaiErc20Query(address)
 	} else if (typeof apiKey !== 'undefined') {

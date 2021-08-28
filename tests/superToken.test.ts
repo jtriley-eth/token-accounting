@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { expect, assert } from 'chai'
-import { getTableInfo } from '../src/aggregation/superToken/index'
+import { getSuperTokenDataAsync } from '../src/aggregation/superToken/index'
 import {
 	getFlowState,
 	getTransfers
@@ -35,11 +35,11 @@ describe('superTokens.ts tests', () => {
 		)
 	})
 
-	it('calling getTableInfo()', async () => {
+	it('calling getSuperTokenDataAsync()', async () => {
 		const address = process.env.ADDRESS
 		// check for error now
 		if (typeof address === 'string') {
-			await getTableInfo(
+			await getSuperTokenDataAsync(
 				address.toLowerCase(),
 				'polygon-pos',
 				Date.now() - ethToUnixTime(getSecondsIn('day') * 30),
