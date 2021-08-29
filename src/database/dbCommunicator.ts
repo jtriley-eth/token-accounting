@@ -4,11 +4,8 @@ import mongoose from 'mongoose'
 import { AccountDocumentType } from '../types'
 import accountModel from './models/accountModel'
 
-const ConnectToDB = async () => {
+const ConnectToDB = async (dbUrl: string) => {
 	try {
-		const dbUrl = process.env.DB_URL
-		if (typeof dbUrl === 'undefined')
-			throw Error('dotenv failed to load DB_URL')
 		await mongoose.connect(dbUrl, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true

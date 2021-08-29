@@ -1,8 +1,13 @@
+// MUST be first
+import dotenv from 'dotenv'
+dotenv.config()
 import { expect } from 'chai'
 import Communicator from '../src/database/dbCommunicator'
-import mongoose from 'mongoose'
-import { AccountDocumentType, TestDocumentType } from '../src/types'
+import { AccountDocumentType } from '../src/types'
 import { assert } from 'chai'
+
+const dbUrl = process.env.DB_URL
+if (dbUrl === undefined) throw Error('dotenv failed to load DB_URL')
 
 //document I will be adding and looking up
 const dummyData: AccountDocumentType = {
@@ -113,7 +118,7 @@ const dummyData: AccountDocumentType = {
 
 describe('dbCommunicator tests', () => {
 	it('checking ConnectToDB', async () => {
-		Communicator.ConnectToDB()
+		Communicator.ConnectToDB(dbUrl)
 			.then(() => {
 				//successfully connected
 				assert.ok(true)
@@ -126,9 +131,9 @@ describe('dbCommunicator tests', () => {
 
 	it('checking AddAccountData', async () => {
 		await Communicator.AddAccountData(dummyData)
-			.then((myFoundData: mongoose.Document) => {
+			.then(added => {
 				//console.log(myFoundData)
-				expect(myFoundData).is.not.null
+				expect(added).is.true
 				assert.ok(true)
 			})
 			.catch((err: string) => {
@@ -140,7 +145,7 @@ describe('dbCommunicator tests', () => {
 	it('checking GetAccountData', async () => {
 		const addressToFind = '0x00000000000000000000000000000000'
 		await Communicator.GetAccountData(addressToFind)
-			.then((myFoundData: mongoose.Document) => {
+			.then(() => {
 				assert.ok(true)
 			})
 			.catch((err: string) => {

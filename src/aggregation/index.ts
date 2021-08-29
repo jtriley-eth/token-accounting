@@ -136,8 +136,7 @@ export const aggregateDataAsync = async (
 			const contractAddress = isSuperTokenMetadata(token)
 				? token.underlyingAddress
 				: token.id
-			console.log('get price (transfer)')
-			console.log(`${JSON.stringify(transfer, null, 4)}`)
+			console.log('\tget price (transfer)')
 			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
 			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
@@ -146,7 +145,7 @@ export const aggregateDataAsync = async (
 				vsCurrency: 'usd',
 				daysBack
 			})
-			console.log('price resolved (transfer)')
+			console.log('\tprice resolved (transfer)')
 			const tokenAmountD = new Decimal(transfer.amountToken).mul(
 				new Decimal(1e-18)
 			)

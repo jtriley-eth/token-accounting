@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerAddress, deleteAddress } from './address'
+import { registerAddress, deleteAddress, registry } from './address'
 import { update } from './update'
 import { utils } from 'ethers'
 import { getAllData, getDataByAddress } from './data'
@@ -37,6 +37,10 @@ Router.route('/data/:id?').get((req, res) => {
 			})
 			.catch(error => res.status(500).render('error', { error }))
 	}
+})
+
+Router.route('/registry').get((_, res) => {
+	registry().then(addresses => res.status(200).send(addresses))
 })
 
 Router.route('/address/:id')
