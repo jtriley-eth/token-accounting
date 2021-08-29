@@ -22,8 +22,8 @@ export const getSuperTokenDataAsync = async (
 	const superTokens = await getSuperTokens(address, networkId)
 
 	// GET FLOWS
-	let flowState: Array<OutputFlow> = []
-	let transfers: Array<OutputTransfer> = []
+	const flowState: OutputFlow[] = []
+	const transfers: OutputTransfer[] = []
 
 	for (let day = startDay; day <= endDay; day += secondsInDay) {
 		flowState.push(...getFlowState(day, superTokens, networkId))
@@ -50,9 +50,9 @@ export const getSuperTokenDataAsync = async (
 	})
 
 	const gradeEvents = superTokens.reduce(
-		(gradeEvents: Array<GradeEvent>, superToken) => {
+		(gEvents: GradeEvent[], superToken) => {
 			const { upgradeEvents, downgradeEvents } = superToken.gradeEvents
-			return gradeEvents.concat(upgradeEvents).concat(downgradeEvents)
+			return gEvents.concat(upgradeEvents).concat(downgradeEvents)
 		},
 		[]
 	)

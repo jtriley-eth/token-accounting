@@ -37,9 +37,9 @@ export interface TestDocumentType {
 
 export interface AccountDocumentType {
 	address: string
-	flowState: Array<OutputFlow>
-	transfers: Array<OutputTransfer>
-	gradeEvents: Array<GradeEvent>
+	flowState: OutputFlow[]
+	transfers: OutputTransfer[]
+	gradeEvents: GradeEvent[]
 }
 
 // QUERY RETURN TYPES
@@ -139,7 +139,7 @@ interface QueryFlow {
 	recipient: {
 		id: string
 	}
-	events: Array<QueryFlowEvent>
+	events: QueryFlowEvent[]
 }
 
 interface QueryGradeEvent {
@@ -155,19 +155,19 @@ interface QueryGradeEvent {
 export interface QueryAccountToken {
 	id: string
 	token: QueryToken
-	inTransfers: Array<QueryTransfer>
-	outTransfers: Array<QueryTransfer>
+	inTransfers: QueryTransfer[]
+	outTransfers: QueryTransfer[]
 	flows: {
 		// NOT valid ID, just preventing Apollo ID crash.
 		id: string
-		inFlows: Array<QueryFlow>
-		outFlows: Array<QueryFlow>
+		inFlows: QueryFlow[]
+		outFlows: QueryFlow[]
 	}
 	gradeEvents: {
 		// NOT valid ID, just preventing Apollo ID crash.
 		id: string
-		upgradeEvents: Array<QueryGradeEvent>
-		downgradeEvents: Array<QueryGradeEvent>
+		upgradeEvents: QueryGradeEvent[]
+		downgradeEvents: QueryGradeEvent[]
 	}
 }
 
@@ -218,14 +218,14 @@ export interface GradeEvent {
 }
 
 export interface GradeEvents {
-	upgradeEvents: Array<GradeEvent>
-	downgradeEvents: Array<GradeEvent>
+	upgradeEvents: GradeEvent[]
+	downgradeEvents: GradeEvent[]
 }
 
 export interface AccountToken {
 	metadata: SuperTokenMetadata
-	events: Array<TokenEvent>
-	flows: Array<Flow>
+	events: TokenEvent[]
+	flows: Flow[]
 	gradeEvents: GradeEvents
 }
 
@@ -233,7 +233,7 @@ export interface UserState {
 	address: string
 	chain: ChainName
 	isDark: boolean
-	tokens: Array<AccountToken>
+	tokens: AccountToken[]
 }
 
 // TYPE GUARDS

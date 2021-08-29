@@ -11,7 +11,7 @@ export const getTransactionsAsync = async (
 	address: string,
 	chain: ChainName,
 	apiKey?: string
-): Promise<Array<OutputTransfer>> => {
+): Promise<OutputTransfer[]> => {
 	// 0.2 second rate limit
 	await new Promise(resolve => setTimeout(resolve, 200))
 	if (chain === 'xdai') {
@@ -28,7 +28,7 @@ const erc20Query = async (
 	address: string,
 	apiKey: string,
 	chain: ChainName
-): Promise<Array<OutputTransfer>> => {
+): Promise<OutputTransfer[]> => {
 	const client = axios.create({
 		baseURL: getEndpoint(chain),
 		timeout: 5000
@@ -54,7 +54,7 @@ const erc20Query = async (
 						} = transfer
 
 						return {
-							date: parseInt(timeStamp),
+							date: parseInt(timeStamp, 10),
 							sender: from,
 							recipient: to,
 							txHash: hash,
@@ -92,7 +92,7 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 		.then(response => {
 			const { data } = response
 			if (data.status === '1') {
-				const transfers: Array<OutputTransfer> = data.result.map(
+				const transfers: OutputTransfer[] = data.result.map(
 					(transfer: QueryxDaiTransfer): OutputTransfer => {
 						const {
 							timeStamp,
@@ -106,7 +106,7 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 						} = transfer
 
 						return {
-							date: parseInt(timeStamp),
+							date: parseInt(timeStamp, 10),
 							sender: from,
 							recipient: to,
 							txHash: hash,

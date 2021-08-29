@@ -351,7 +351,7 @@ query ($userAddress: ID!, $skip: Int!, $first: Int!) {
       }
     }
   }
-  
+
 `
 
 export const downgradeEventsQuery = `
@@ -375,7 +375,7 @@ query ($userAddress: ID!, $skip: Int!, $first: Int!) {
       }
     }
   }
-  
+
 `
 
 export const transferEventsSent = `

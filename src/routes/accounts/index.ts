@@ -11,14 +11,28 @@ Router.route('/data/:id?').get((req, res) => {
 	if (typeof id === 'undefined') {
 		getAllData()
 			.then(data => {
-				if (data !== null) res.status(200).send(data)
+				if (data !== null)
+					res.status(200).send(
+						data.map(account => ({
+							address: account.address,
+							flowState: account.flowState,
+							transfers: account.transfers,
+							gradeEvents: account.gradeEvents
+						}))
+					)
 				else res.status(404).send('no data found')
 			})
 			.catch(error => res.status(500).render('error', { error }))
 	} else {
 		getDataByAddress(id)
 			.then(data => {
-				if (data !== null) res.status(200).send(data)
+				if (data !== null)
+					res.status(200).send({
+						address: data.address,
+						flowState: data.flowState,
+						transfers: data.transfers,
+						gradeEvents: data.gradeEvents
+					})
 				else res.status(404).send(`data for address: ${id} not found`)
 			})
 			.catch(error => res.status(500).render('error', { error }))

@@ -12,11 +12,11 @@ import BN from 'bn.js'
 
 export const getFlowState = (
 	day: number,
-	accountTokens: Array<AccountToken>,
+	accountTokens: AccountToken[],
 	networkId: ChainName
-): Array<OutputFlow> => {
+): OutputFlow[] => {
 	const secondsInDay = getSecondsIn('day')
-	let flows: Array<{
+	const flows: {
 		start: number
 		end: number
 		sender: string
@@ -24,13 +24,13 @@ export const getFlowState = (
 		txHash: string
 		flowRate: string
 		token: SuperTokenMetadata
-		flowRateChanges: Array<{
+		flowRateChanges: {
 			// ONLY FOR CHANGES *DURING* DAY
 			timestamp: number
 			previousFlowRate: string
-		}>
-	}> = []
-	let outputFlows: Array<OutputFlow> = []
+		}[]
+	}[] = []
+	const outputFlows: OutputFlow[] = []
 
 	accountTokens.forEach(accountToken => {
 		const { metadata: token, events } = accountToken
@@ -225,10 +225,10 @@ export const getFlowState = (
 
 export const getTransfers = (
 	day: number,
-	accountTokens: Array<AccountToken>,
+	accountTokens: AccountToken[],
 	networkId: ChainName
-): Array<OutputTransfer> => {
-	let outputTransfers: Array<OutputTransfer> = []
+): OutputTransfer[] => {
+	const outputTransfers: OutputTransfer[] = []
 
 	accountTokens.forEach(accountToken => {
 		const { metadata: token, events } = accountToken

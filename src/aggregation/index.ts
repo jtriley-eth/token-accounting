@@ -17,15 +17,15 @@ const polygonKey = process.env.POLYGON_KEY
 const ETHEREUM_LAUNCH = 1438214400
 
 export const aggregateDataAsync = async (
-	addresses: Array<string>,
+	addresses: string[],
 	start?: number,
 	end?: number
-): Promise<Array<AccountDocumentType>> => {
+): Promise<AccountDocumentType[]> => {
 	if (
 		typeof etherscanKey === 'undefined' ||
 		typeof polygonKey === 'undefined'
 	) {
-		throw Error('dotenv failed to load')
+		throw Error('dotenv failed to load ETHERSCAN_KEY or POLYGON_KEY')
 	}
 	const startTime = typeof start === 'undefined' ? ETHEREUM_LAUNCH : start
 	const endTime = typeof end === 'undefined' ? Date.now() : end
@@ -33,7 +33,7 @@ export const aggregateDataAsync = async (
 
 	// iterate through all addresses
 	console.log('start addresses')
-	let tableData: Array<AccountDocumentType> = []
+	const tableData: AccountDocumentType[] = []
 	for await (const address of addresses) {
 		// iterate through tx data from xdai, polygon subgraphs
 		console.log('get superTokens')
@@ -46,15 +46,22 @@ export const aggregateDataAsync = async (
 			getSuperTokenDataAsync(address, 'xdai', startTime, endTime)
 		]).then(data => {
 			console.log('superTokens resolved')
-			const flowState = data[0].flowState.concat(data[1].flowState)
-			const transfers = data[0].transfers.concat(data[1].transfers)
-			const gradeEvents = data[0].gradeEvents.concat(data[1].gradeEvents)
-			return { address, flowState, transfers, gradeEvents }
+			const fullFlowState = data[0].flowState.concat(data[1].flowState)
+			const fullTransfers = data[0].transfers.concat(data[1].transfers)
+			const fullGradeEvents = data[0].gradeEvents.concat(
+				data[1].gradeEvents
+			)
+			return {
+				address,
+				flowState: fullFlowState,
+				transfers: fullTransfers,
+				gradeEvents: fullGradeEvents
+			}
 		})
 
 		// iterate through erc20 transfers on ethereum, polygon, xdai
 		console.log('get erc20 transfers')
-		const transfersERC20: Array<OutputTransfer> = await Promise.all([
+		const transfersERC20: OutputTransfer[] = await Promise.all([
 			getTransactionsAsync(address, 'ethereum', etherscanKey),
 			getTransactionsAsync(address, 'polygon-pos', polygonKey),
 			getTransactionsAsync(address, 'xdai')
@@ -91,7 +98,7 @@ export const aggregateDataAsync = async (
 			})
 
 		console.log('get prices (flows)\n==========')
-		let flowStateWithPrice: Array<OutputFlow> = []
+		const flowStateWithPrice: OutputFlow[] = []
 		for await (const flow of flowState) {
 			const daysBack = Math.floor(
 				(ethNow() - flow.date) / secondsInDay
@@ -119,7 +126,7 @@ export const aggregateDataAsync = async (
 		}
 
 		console.log('get prices (transfers)\n==========')
-		let transfersWithPrice: Array<OutputTransfer> = []
+		const transfersWithPrice: OutputTransfer[] = []
 		for await (const transfer of transfers) {
 			const daysBack = Math.floor(
 				(ethNow() - transfer.date) / secondsInDay

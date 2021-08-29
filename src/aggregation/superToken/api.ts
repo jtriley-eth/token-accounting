@@ -17,7 +17,7 @@ import { graphEndpoint } from '../../constants/theGraphEndpoint'
 export const getSuperTokens = async (
 	userAddress: string,
 	chain: ChainName
-): Promise<Array<AccountToken>> => {
+): Promise<AccountToken[]> => {
 	const httpLink = createHttpLink({
 		uri: graphEndpoint(chain),
 		fetch
@@ -37,7 +37,7 @@ export const getSuperTokens = async (
 			}
 		})
 		.then(data => {
-			const queryAccountTokens: Array<QueryAccountToken> =
+			const queryAccountTokens: QueryAccountToken[] =
 				data.data.accountTokens
 
 			const accountTokens = queryAccountTokens.map(
@@ -53,26 +53,27 @@ export const getSuperTokens = async (
 						(flow): Flow => ({
 							id: flow.id,
 							flowRate: flow.flowRate,
-							lastUpdate: parseInt(flow.lastUpdate),
+							lastUpdate: parseInt(flow.lastUpdate, 10),
 							sender: flow.owner.id,
 							recipient: flow.recipient.id
 						})
 					)
 
 					const flowEvents = allFlows.reduce(
-						(events: Array<TokenEvent>, flow) => {
-							return events.concat(
+						(fEvents: TokenEvent[], flow) => {
+							return fEvents.concat(
 								flow.events.map(
-									(event): FlowEvent => ({
-										id: event.id,
+									(e): FlowEvent => ({
+										id: e.id,
 										timestamp: parseInt(
-											event.transaction.timestamp
+											e.transaction.timestamp,
+											10
 										),
-										txHash: event.transaction.id,
+										txHash: e.transaction.id,
 										sender: flow.owner.id,
 										recipient: flow.recipient.id,
-										oldFlowRate: event.oldFlowRate,
-										flowRate: event.flowRate,
+										oldFlowRate: e.oldFlowRate,
+										flowRate: e.flowRate,
 										type: 'flow'
 									})
 								)
@@ -84,7 +85,10 @@ export const getSuperTokens = async (
 					const transferEvents = inTransfers.concat(outTransfers).map(
 						(transfer): TokenEvent => ({
 							id: transfer.id,
-							timestamp: parseInt(transfer.transaction.timestamp),
+							timestamp: parseInt(
+								transfer.transaction.timestamp,
+								10
+							),
 							txHash: transfer.transaction.id,
 							sender: transfer.from.account.id,
 							recipient: transfer.to.account.id,
@@ -100,7 +104,10 @@ export const getSuperTokens = async (
 							id: event.id,
 							transaction: {
 								id: event.transaction.id,
-								timestamp: parseInt(event.transaction.timestamp)
+								timestamp: parseInt(
+									event.transaction.timestamp,
+									10
+								)
 							},
 							token: event.token,
 							amount: event.amount
@@ -112,7 +119,10 @@ export const getSuperTokens = async (
 							id: event.id,
 							transaction: {
 								id: event.transaction.id,
-								timestamp: parseInt(event.transaction.timestamp)
+								timestamp: parseInt(
+									event.transaction.timestamp,
+									10
+								)
 							},
 							token: event.token,
 							amount: event.amount

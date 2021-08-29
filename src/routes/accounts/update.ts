@@ -3,7 +3,7 @@ import { aggregateDataAsync } from '../../aggregation'
 import Communicator from '../../database/dbCommunicator'
 
 export const update = async () => {
-	let aggregatedAccounts: Array<AccountDocumentType> = []
+	let aggregatedAccounts: AccountDocumentType[] = []
 
 	try {
 		const accounts = await Communicator.GetAllAccounts()

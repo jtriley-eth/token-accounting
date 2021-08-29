@@ -1,11 +1,15 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import mongoose from 'mongoose'
 import { AccountDocumentType } from '../types'
 import accountModel from './models/accountModel'
-import { DB_URL } from '../constants/database'
 
 const ConnectToDB = async () => {
 	try {
-		await mongoose.connect(DB_URL, {
+		const dbUrl = process.env.DB_URL
+		if (typeof dbUrl === 'undefined')
+			throw Error('dotenv failed to load DB_URL')
+		await mongoose.connect(dbUrl, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true
 		})
@@ -50,7 +54,7 @@ const GetAccountData = async (
 	}
 }
 
-const GetAllAccounts = async (): Promise<Array<AccountDocumentType> | null> => {
+const GetAllAccounts = async (): Promise<AccountDocumentType[] | null> => {
 	try {
 		return await accountModel.find()
 	} catch (error) {
