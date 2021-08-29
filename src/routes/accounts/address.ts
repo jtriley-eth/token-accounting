@@ -21,7 +21,7 @@ export const deleteAddress = async (address: string): Promise<boolean> => {
 	}
 }
 
-export const registry = async (): Promise<Array<string>> => {
+export const registry = async (): Promise<string[]> => {
 	try {
 		const accounts = await Communicator.GetAllAccounts()
 		if (accounts !== null) {

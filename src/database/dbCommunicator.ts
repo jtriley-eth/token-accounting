@@ -61,7 +61,7 @@ const GetAllAccounts = async (): Promise<AccountDocumentType[] | null> => {
 
 const RemoveAccountData = async (address: string): Promise<boolean> => {
 	try {
-		await accountModel.remove({ address })
+		await accountModel.deleteOne({ address })
 		return true
 	} catch (error) {
 		throw error
