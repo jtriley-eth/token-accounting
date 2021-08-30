@@ -1,3 +1,7 @@
+// MUST be first
+import dotenv from 'dotenv'
+dotenv.config()
+
 import { getSuperTokenDataAsync } from './superToken'
 import { getTransactionsAsync } from './erc20'
 import PriceFeeder from './priceFeed'
