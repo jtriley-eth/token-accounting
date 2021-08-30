@@ -258,24 +258,6 @@ export function isSuperTokenMetadata(
 }
 
 // OUTPUT
-export interface OutputFlowEvent {
-	id: string
-	transaction: {
-		id: string
-		timestamp: string
-	}
-	oldFlowRate: string
-	newFlowRate: string
-	flow: {
-		id: string
-		sender: {
-			id: string
-		}
-		recipient: {
-			id: string
-		}
-	}
-}
 
 export interface OutputFlow {
 	date: number

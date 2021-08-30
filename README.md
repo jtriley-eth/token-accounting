@@ -112,6 +112,22 @@ GET
 http://localhost:5000/accounts/registry
 ```
 
+### Get CSV File of Transfers By Address
+
+GET
+
+```
+http://localhost:5000/accounts/csv/transfers/0x0000
+```
+
+### Get CSV File of FlowState By Address
+
+GET
+
+```
+http://localhost:5000/accounts/csv/flowstate/0x0000
+```
+
 ---
 
 ## Contributing

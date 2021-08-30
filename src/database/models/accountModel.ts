@@ -20,7 +20,7 @@ const accountSchema = new Schema({
 			}
 		}
 	],
-	flows: [
+	flowState: [
 		{
 			date: Number,
 			start: Number,

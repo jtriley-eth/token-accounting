@@ -45,7 +45,9 @@ const GetAccountData = async (
 	addressToFind: string
 ): Promise<AccountDocumentType | null> => {
 	try {
-		return await accountModel.findOne({ address: addressToFind })
+		return await accountModel.findOne({
+			address: addressToFind.toLowerCase()
+		})
 	} catch (error) {
 		throw error
 	}
