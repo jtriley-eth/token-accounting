@@ -130,6 +130,20 @@ http://localhost:5000/accounts/csv/flowstate/0x0000
 
 ---
 
+## Note about Price Feeds
+
+Not all tokens have a token price on Coin Gecko.
+
+Obscure ERC20 tokens, as well as Uniswap v2 LP tokens, return a `404` from
+Coin Gecko.
+
+To reduce confusion on prices, any price queries that return a `404` will be
+recorded as having `-1` on the exchangeRate and amountFiat.
+
+Any Coin Gecko `404` responses are logged in the Flow State console.
+
+---
+
 ## Contributing
 
 See `./CONTRIBUTING.md`

@@ -50,38 +50,4 @@ describe('superTokens.ts tests', () => {
 			throw Error('dotenv failed to load')
 		}
 	})
-
-	it('checking getFlowState()', () => {
-		const day = roundDownToDay(ethNow() - getSecondsIn('day'))
-		const accountTokens: Array<AccountToken> = [
-			{
-				metadata: {
-					id: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-					symbol: 'DAIx',
-					name: 'Super DAI (PoS)'
-				},
-				events: [],
-				flows: []
-			}
-		]
-		const flowState = getFlowState(day, accountTokens, 'polygon-pos')
-		expect(flowState).to.have.length(0)
-	})
-
-	it('checking getTransfers()', () => {
-		const day = roundDownToDay(ethNow() - getSecondsIn('day'))
-		const accountTokens: Array<AccountToken> = [
-			{
-				metadata: {
-					id: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-					symbol: 'DAIx',
-					name: 'Super DAI (PoS)'
-				},
-				events: [],
-				flows: []
-			}
-		]
-		const flowState = getTransfers(day, accountTokens, 'polygon-pos')
-		expect(flowState).to.have.length(0)
-	})
 })

@@ -147,7 +147,7 @@ export const getSuperTokens = async (
 			return accountTokens
 		})
 		.catch(error => {
-			console.error(error)
+			console.error('The Graph: Superfluid:', error)
 			return []
 		})
 }

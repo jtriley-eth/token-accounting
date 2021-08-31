@@ -36,11 +36,9 @@ export const aggregateDataAsync = async (
 	const secondsInDay = getSecondsIn('day')
 
 	// iterate through all addresses
-	console.log('start addresses')
 	const tableData: AccountDocumentType[] = []
 	for await (const address of addresses) {
 		// iterate through tx data from xdai, polygon subgraphs
-		console.log('get superTokens')
 		const {
 			flowState,
 			transfers: superTransfers,
@@ -49,7 +47,6 @@ export const aggregateDataAsync = async (
 			getSuperTokenDataAsync(address, 'polygon-pos', startTime, endTime),
 			getSuperTokenDataAsync(address, 'xdai', startTime, endTime)
 		]).then(data => {
-			console.log('superTokens resolved')
 			const fullFlowState = data[0].flowState.concat(data[1].flowState)
 			const fullTransfers = data[0].transfers.concat(data[1].transfers)
 			const fullGradeEvents = data[0].gradeEvents.concat(
@@ -64,13 +61,11 @@ export const aggregateDataAsync = async (
 		})
 
 		// iterate through erc20 transfers on ethereum, polygon, xdai
-		console.log('get erc20 transfers')
 		const transfersERC20: OutputTransfer[] = await Promise.all([
 			getTransactionsAsync(address, 'ethereum', etherscanKey),
 			getTransactionsAsync(address, 'polygon-pos', polygonKey),
 			getTransactionsAsync(address, 'xdai')
 		]).then(data => {
-			console.log('erc20 transfers resolved')
 			const ethereumTransfers = data[0]
 			const polygonTransfers = data[1]
 			const xdaiTransfers = data[2]
@@ -101,13 +96,11 @@ export const aggregateDataAsync = async (
 				}
 			})
 
-		console.log('get prices (flows)\n==========')
 		const flowStateWithPrice: OutputFlow[] = []
 		for await (const flow of flowState) {
 			const daysBack = Math.floor(
 				(ethNow() - flow.date) / secondsInDay
 			).toString()
-			console.log('\tget price (flow)')
 			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
 			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
@@ -116,7 +109,6 @@ export const aggregateDataAsync = async (
 				vsCurrency: 'usd',
 				daysBack
 			})
-			console.log('\tprice resolved')
 			const tokenAmountDecimal = new Decimal(flow.amountToken).mul(
 				new Decimal(1e-18)
 			)
@@ -129,7 +121,6 @@ export const aggregateDataAsync = async (
 			)
 		}
 
-		console.log('get prices (transfers)\n==========')
 		const transfersWithPrice: OutputTransfer[] = []
 		for await (const transfer of transfers) {
 			const daysBack = Math.floor(
@@ -140,7 +131,6 @@ export const aggregateDataAsync = async (
 			const contractAddress = isSuperTokenMetadata(token)
 				? token.underlyingAddress
 				: token.id
-			console.log('\tget price (transfer)')
 			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
 			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
@@ -149,7 +139,6 @@ export const aggregateDataAsync = async (
 				vsCurrency: 'usd',
 				daysBack
 			})
-			console.log('\tprice resolved (transfer)')
 			const tokenAmountD = new Decimal(transfer.amountToken).mul(
 				new Decimal(1e-18)
 			)
@@ -170,6 +159,5 @@ export const aggregateDataAsync = async (
 			gradeEvents
 		})
 	}
-	console.log('all resolved')
 	return tableData
 }
