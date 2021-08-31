@@ -65,7 +65,11 @@ const getAverageCoinPrice = async (
 			}
 		})
 		.catch(err => {
-			console.log('Coin Gecko:', err.toJSON().message)
+			console.log(
+				'Coin Gecko:',
+				err.toJSON().message,
+				`Token Address: ${input.contractAddress}`
+			)
 			return '-1'
 		})
 }

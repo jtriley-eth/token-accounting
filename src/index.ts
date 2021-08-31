@@ -4,6 +4,7 @@ dotenv.config()
 
 import Agenda from 'agenda'
 import express from 'express'
+import cors from 'cors'
 import accountsRouter from './routes/accounts'
 import Connector from './database/dbCommunicator'
 import { update } from './routes/accounts/update'
@@ -28,6 +29,7 @@ agenda.define('data aggregation', async () => {
 	await agenda.every('24 hours', 'data aggregation')
 })()
 
+app.use(cors())
 app.use(express.json())
 app.route('/test').get((_, res) => res.send('Everything Is Fine :)'))
 app.use('/accounts', accountsRouter)

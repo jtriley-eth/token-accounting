@@ -38,6 +38,7 @@ export const aggregateDataAsync = async (
 	// iterate through all addresses
 	const tableData: AccountDocumentType[] = []
 	for await (const address of addresses) {
+		console.log('getting supertoken data')
 		// iterate through tx data from xdai, polygon subgraphs
 		const {
 			flowState,
@@ -59,7 +60,7 @@ export const aggregateDataAsync = async (
 				gradeEvents: fullGradeEvents
 			}
 		})
-
+		console.log('getting erc20 transfers')
 		// iterate through erc20 transfers on ethereum, polygon, xdai
 		const transfersERC20: OutputTransfer[] = await Promise.all([
 			getTransactionsAsync(address, 'ethereum', etherscanKey),
@@ -95,7 +96,7 @@ export const aggregateDataAsync = async (
 					return true
 				}
 			})
-
+		console.log('getting prices')
 		const flowStateWithPrice: OutputFlow[] = []
 		for await (const flow of flowState) {
 			const daysBack = Math.floor(
@@ -159,5 +160,6 @@ export const aggregateDataAsync = async (
 			gradeEvents
 		})
 	}
+	console.log('all resolved')
 	return tableData
 }

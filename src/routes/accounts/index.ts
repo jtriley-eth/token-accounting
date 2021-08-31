@@ -94,18 +94,13 @@ Router.route('/address/:id')
 	})
 	.delete((req, res) => {
 		const { id } = req.params
-		// checks if is valid address (hex or icap)
-		if (utils.isAddress(id)) {
-			// format to hex, lower case
-			deleteAddress(utils.getAddress(id).toLowerCase())
-				.then(deleted => {
-					if (deleted) res.status(200).send(`deleted: ${id}`)
-					else res.status(500).send(`not deleted: ${id}`)
-				})
-				.catch(error => res.status(500).json({ error }))
-		} else {
-			res.status(400).send('invalid address')
-		}
+		// format to hex, lower case
+		deleteAddress(id.toLowerCase())
+			.then(deleted => {
+				if (deleted) res.status(200).send(`deleted: ${id}`)
+				else res.status(500).send(`not deleted: ${id}`)
+			})
+			.catch(error => res.status(500).json({ error }))
 	})
 
 Router.route('/force_update').put((_, res) => {
