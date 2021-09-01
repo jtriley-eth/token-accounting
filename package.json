@@ -1,6 +1,6 @@
 {
 	"name": "token-accounting",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "Accounting for ERC20 tokens and Superfluid Super Tokens",
 	"main": "dist/index.js",
 	"repository": "https://github.com/JoshuaTrujillo15/token-accounting.git",
