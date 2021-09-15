@@ -41,18 +41,9 @@ const getACoinsHistory = async (input: CoinHistoryInput) => {
 const getAverageCoinPrice = async (
 	input: CoinHistoryInputContract
 ): Promise<string> => {
+	const url = `https://api.coingecko.com/api/v3/coins/${input.id}/contract/${input.contractAddress}/market_chart/?vs_currency=${input.vsCurrency}&days=${input.daysBack}`
 	return axios
-		.get(
-			'https://api.coingecko.com/api/v3/coins/' +
-				input.id +
-				'/contract/' +
-				input.contractAddress +
-				'/market_chart/?vs_currency=' +
-				input.vsCurrency +
-				'&days=' +
-				input.daysBack +
-				''
-		)
+		.get(url)
 		.then(res => {
 			if (res.data === undefined) {
 				throw Error('result is undefined')
@@ -65,11 +56,8 @@ const getAverageCoinPrice = async (
 			}
 		})
 		.catch(err => {
-			console.log(
-				'Coin Gecko:',
-				err.toJSON().message,
-				`Token Address: ${input.contractAddress}`
-			)
+			console.log('Coin Gecko:', err.toJSON().message)
+			console.log({ token: input.contractAddress })
 			return '-1'
 		})
 }

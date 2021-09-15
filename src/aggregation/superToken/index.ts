@@ -1,6 +1,11 @@
 import { getFlowState, getTransfers } from './accounting'
 import { getSuperTokens } from './api'
-import { unixToEthTime, roundDownToDay, getSecondsIn } from '../../helpers/time'
+import {
+	unixToEthTime,
+	roundDownToDay,
+	getSecondsIn,
+	ethToUnixTime
+} from '../../helpers/time'
 import {
 	ChainName,
 	GradeEvent,
@@ -15,8 +20,8 @@ export const getSuperTokenDataAsync = async (
 	start: number,
 	end: number
 ): Promise<AccountDocumentType> => {
-	const startDay = unixToEthTime(roundDownToDay(start))
-	const endDay = unixToEthTime(roundDownToDay(end))
+	const startDay = unixToEthTime(roundDownToDay(ethToUnixTime(start)))
+	const endDay = unixToEthTime(roundDownToDay(ethToUnixTime(end)))
 	const secondsInDay = getSecondsIn('day')
 
 	const superTokens = await getSuperTokens(address, networkId)
@@ -24,10 +29,12 @@ export const getSuperTokenDataAsync = async (
 	// GET FLOWS
 	const flowState: OutputFlow[] = []
 	const transfers: OutputTransfer[] = []
-
-	for (let day = startDay; day <= endDay; day += secondsInDay) {
+	let day = startDay
+	let iter = 0
+	for (day = startDay; day <= endDay; day += secondsInDay) {
 		flowState.push(...getFlowState(day, superTokens, networkId))
 		transfers.push(...getTransfers(day, superTokens, networkId))
+		iter++
 	}
 
 	// sort

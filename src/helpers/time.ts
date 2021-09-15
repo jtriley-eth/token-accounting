@@ -14,11 +14,11 @@ export const getSecondsIn = (
 }
 
 export const unixToEthTime = (timestamp: number): number => {
-	return Math.floor(timestamp / 100)
+	return Math.floor(timestamp / 1000)
 }
 
 export const ethToUnixTime = (timestamp: number): number => {
-	return timestamp * 100
+	return timestamp * 1000
 }
 
 export const roundDownToDay = (timestamp: number): number => {

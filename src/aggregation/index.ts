@@ -32,7 +32,7 @@ export const aggregateDataAsync = async (
 		throw Error('dotenv failed to load ETHERSCAN_KEY or POLYGON_KEY')
 	}
 	const startTime = typeof start === 'undefined' ? ETHEREUM_LAUNCH : start
-	const endTime = typeof end === 'undefined' ? Date.now() : end
+	const endTime = typeof end === 'undefined' ? ethNow() : end
 	const secondsInDay = getSecondsIn('day')
 
 	// iterate through all addresses
@@ -99,6 +99,9 @@ export const aggregateDataAsync = async (
 		console.log('getting prices')
 		const flowStateWithPrice: OutputFlow[] = []
 		for await (const flow of flowState) {
+			console.log(
+				`getting price:\n\thash: ${flow.txHash}\n\ttoken: ${flow.token.symbol}`
+			)
 			const daysBack = Math.floor(
 				(ethNow() - flow.date) / secondsInDay
 			).toString()
@@ -110,6 +113,9 @@ export const aggregateDataAsync = async (
 				vsCurrency: 'usd',
 				daysBack
 			})
+			if (exchangeRate === '-1') {
+				console.log({ flow })
+			}
 			const tokenAmountDecimal = new Decimal(flow.amountToken).mul(
 				new Decimal(1e-18)
 			)
@@ -140,6 +146,9 @@ export const aggregateDataAsync = async (
 				vsCurrency: 'usd',
 				daysBack
 			})
+			if (exchangeRate === '-1') {
+				console.log({ transfer })
+			}
 			const tokenAmountD = new Decimal(transfer.amountToken).mul(
 				new Decimal(1e-18)
 			)

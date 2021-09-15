@@ -70,6 +70,8 @@ const erc20Query = async (
 						}
 					}
 				)
+			} else if (data.message === 'No transactions found') {
+				return []
 			} else {
 				throw Error(JSON.stringify(data, null, 4))
 			}

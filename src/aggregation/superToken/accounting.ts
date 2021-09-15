@@ -125,20 +125,14 @@ export const getFlowState = (
 							flowRateChanges: []
 						})
 					} else {
-						throw Error('duplicate flow (sender, recipient, token)')
+						flows[index].flowRateChanges.push({
+							timestamp: event.timestamp,
+							previousFlowRate: flows[index].flowRate
+						})
+						flows[index].flowRate = event.flowRate
 					}
 
-					// flow stop
-				} else if (event.flowRate === '0') {
-					if (index !== -1) {
-						flows[index].end = event.timestamp
-					} else {
-						throw Error(
-							'flow-stop event triggered on non-existent flow'
-						)
-					}
-
-					// flow update
+					// flow stop recorded as flowRateChange
 				} else {
 					if (index !== -1) {
 						// records previous flowRate, updates with new

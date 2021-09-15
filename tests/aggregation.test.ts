@@ -2,26 +2,26 @@
 // for testing
 import dotenv from 'dotenv'
 dotenv.config()
-import { aggregateDataAsync } from '../src/aggregation'
 import chai, { assert } from 'chai'
 import chaiHttp from 'chai-http'
+import { aggregateDataAsync } from '../src/aggregation'
 import fs from 'fs'
 
 chai.use(chaiHttp)
 
 describe('aggregation tests', () => {
-	it('aggregateDataAsync', async () => {
+	// check dotenv
+	const address = process.env.ADDRESS
+	if (typeof address === 'undefined') throw Error('dotenv failed')
+
+	it('should aggregate', async () => {
 		try {
-			const address = process.env.ADDRESS
-			if (typeof address === 'string') {
-				const tableData = await aggregateDataAsync([address])
-				const fileData = JSON.stringify(tableData, null, 4)
-				fs.writeFile('./temp.json', fileData, e => {
-					throw e
-				})
-				console.log('done')
-				assert.ok(true)
-			} else throw Error('dotenv failed to load')
+			const data = (await aggregateDataAsync([address]))[0]
+			fs.writeFile('./temp.json', JSON.stringify(data, null, 4), e =>
+				console.error(e)
+			)
+			console.log('written')
+			assert.ok(true)
 		} catch (error) {
 			console.error('testing error:', error)
 			assert.ok(false)
