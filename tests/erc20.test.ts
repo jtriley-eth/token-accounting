@@ -20,7 +20,7 @@ describe('decimal queries', () => {
 	}
 
 	const usdcx = {
-		polygonPos: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'
+		polygonPos: '0xcaa7349cea390f89641fe306d93591f87595dc1f'
 	}
 
 	const dai = {
@@ -53,7 +53,7 @@ describe('decimal queries', () => {
 
 	it('poygon USDCx', async () => {
 		const data = await decimalQueryAsync(usdcx.polygonPos, 'polygon-pos')
-		expect(data).to.equal('6')
+		expect(data).to.equal('18')
 		assert.ok(true)
 	})
 
