@@ -1,16 +1,34 @@
 import { ChainName } from '../types'
 
-export const etherscanUrl = 'https://api.etherscan.io'
-export const maticUrl = 'https://api.polygonscan.com'
-export const xdaiUrl = 'https://blockscout.com/xdai/mainnet'
+const etherscanTransferUrl = 'https://api.etherscan.io'
+const maticTransferUrl = 'https://api.polygonscan.com'
+const xdaiTransferUrl = 'https://blockscout.com/xdai/mainnet'
 
-export const getEndpoint = (chain: ChainName): string => {
+export const getTransferEndpoint = (chain: ChainName): string => {
 	switch (chain) {
 		case 'ethereum':
-			return etherscanUrl
+			return etherscanTransferUrl
 		case 'polygon-pos':
-			return maticUrl
+			return maticTransferUrl
 		case 'xdai':
-			return xdaiUrl
+			return xdaiTransferUrl
+	}
+}
+
+// this is literally just for token data
+const mainnetTokenUrl =
+	'https://mainnet.infura.io/v3/8833ce81fbcc4cd5b72dddbdff46ff77'
+const maticTokenUrl =
+	'https://polygon-mainnet.infura.io/v3/8833ce81fbcc4cd5b72dddbdff46ff77'
+const xdaiTokenUrl = 'https://dai.poa.network'
+
+export const getTokenEndpoint = (chain: ChainName): string => {
+	switch (chain) {
+		case 'ethereum':
+			return mainnetTokenUrl
+		case 'polygon-pos':
+			return maticTokenUrl
+		case 'xdai':
+			return xdaiTokenUrl
 	}
 }

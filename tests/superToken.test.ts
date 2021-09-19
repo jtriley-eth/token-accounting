@@ -36,7 +36,7 @@ describe('superTokens.ts tests', () => {
 	})
 
 	it('calling getSuperTokenDataAsync()', async () => {
-		const address = process.env.ADDRESS
+		const address = process.env.TEST_ADDRESS
 		// check for error now
 		if (typeof address === 'string') {
 			await getSuperTokenDataAsync(

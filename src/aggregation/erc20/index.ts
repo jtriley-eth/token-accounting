@@ -1,11 +1,17 @@
-import { getEndpoint } from '../constants/erc20Endpoint'
+import {
+	getTokenEndpoint,
+	getTransferEndpoint
+} from '../../constants/erc20Endpoint'
 import axios from 'axios'
+import Web3 from 'web3'
+import ABI from './abi.json'
 import {
 	ChainName,
 	OutputTransfer,
 	QueryERC20Transfer,
 	QueryxDaiTransfer
-} from '../types'
+} from '../../types'
+import { AbiItem } from 'web3-utils'
 
 export const getTransactionsAsync = async (
 	address: string,
@@ -30,13 +36,12 @@ const erc20Query = async (
 	chain: ChainName
 ): Promise<OutputTransfer[]> => {
 	const client = axios.create({
-		baseURL: getEndpoint(chain),
+		baseURL: getTransferEndpoint(chain),
 		timeout: 5000
 	})
+	const transferQuery = `/api?module=account&action=tokentx&address=${address}&apikey=${apiKey}`
 	return client
-		.get(
-			`/api?module=account&action=tokentx&address=${address}&apikey=${apiKey}`
-		)
+		.get(transferQuery)
 		.then(response => {
 			const { data } = response
 			if (data.status === '1') {
@@ -85,7 +90,7 @@ const erc20Query = async (
 const xdaiErc20Query = async (address: string): Promise<any> => {
 	const networkId = 'xdai'
 	const client = axios.create({
-		baseURL: getEndpoint(networkId),
+		baseURL: getTransferEndpoint(networkId),
 		timeout: 5000
 	})
 
@@ -135,4 +140,18 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 		.catch(error => {
 			throw error
 		})
+}
+
+// Why cant we all just have 18 decimals :(
+// etherscan
+export const decimalQueryAsync = async (
+	address: string,
+	chain: ChainName
+): Promise<number> => {
+	const url = getTokenEndpoint(chain)
+	const web3 = new Web3(new Web3.providers.HttpProvider(url))
+	const abi: AbiItem = JSON.parse(JSON.stringify(ABI))
+	const erc20Contract = new web3.eth.Contract(abi, address)
+	const data = await erc20Contract.methods.decimals().call()
+	return data
 }

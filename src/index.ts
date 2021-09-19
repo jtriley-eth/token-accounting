@@ -25,7 +25,6 @@ agenda.define('data aggregation', async () => {
 	}
 })
 ;(async () => {
-	await agenda.start()
 	await agenda.every('24 hours', 'data aggregation')
 })()
 

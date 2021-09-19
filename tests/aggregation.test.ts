@@ -11,7 +11,7 @@ chai.use(chaiHttp)
 
 describe('aggregation tests', () => {
 	// check dotenv
-	const address = process.env.ADDRESS
+	const address = process.env.TEST_ADDRESS
 	if (typeof address === 'undefined') throw Error('dotenv failed')
 
 	it('should aggregate', async () => {

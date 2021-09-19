@@ -100,51 +100,68 @@ export const getFlowState = (
 		eventsDuringDay.forEach(event => {
 			// typescript wont recognize a `.filter()` type-guard.
 			if (isFlowEvent(event)) {
-				// get index of flow if exists
-				const index = flows.findIndex(
-					flow =>
-						flow.sender === event.sender &&
-						flow.recipient === event.recipient &&
-						flow.token.id === token.id
-				)
+				// get last index
+				let lastIndex = -1
+				let iterator = flows.length
+				while (iterator--) {
+					if (
+						flows[iterator].sender === event.sender &&
+						flows[iterator].recipient === event.recipient &&
+						flows[iterator].token.id === token.id
+					) {
+						break
+					}
+				}
+				lastIndex = iterator
+				if (lastIndex === -1) {
+				}
 
 				// destruct event
 				const { timestamp, sender, recipient, txHash, flowRate } = event
 
-				// flow start
+				// this gets weird :)
 				if (event.oldFlowRate === '0') {
-					if (index === -1) {
-						flows.push({
-							start: timestamp,
-							end: -1, // indicates flow is open
-							sender,
-							recipient,
-							txHash,
-							flowRate,
-							token,
-							flowRateChanges: []
-						})
-					} else {
-						flows[index].flowRateChanges.push({
+					// flow start
+					flows.push({
+						start: timestamp,
+						end: -1, // indicates flow is open
+						sender,
+						recipient,
+						txHash,
+						flowRate,
+						token,
+						flowRateChanges: []
+					})
+				} else if (event.flowRate !== '0') {
+					// flowRate update
+					if (lastIndex !== -1) {
+						// flow exists
+						// push flowRateChange
+						flows[lastIndex].flowRateChanges.push({
 							timestamp: event.timestamp,
-							previousFlowRate: flows[index].flowRate
+							previousFlowRate: flows[lastIndex].flowRate
 						})
-						flows[index].flowRate = event.flowRate
+						// THEN update flowRate
+						flows[lastIndex].flowRate = event.flowRate
+					} else {
+						// flow does not exist, throws
+						throw Error('FlowRate updated on non-existent flow')
 					}
-
-					// flow stop recorded as flowRateChange
 				} else {
-					if (index !== -1) {
-						// records previous flowRate, updates with new
-						flows[index].flowRateChanges.push({
+					// flow stop
+					if (lastIndex !== -1) {
+						// flow exists
+						// push flowRateChange
+						flows[lastIndex].flowRateChanges.push({
 							timestamp: event.timestamp,
-							previousFlowRate: flows[index].flowRate
+							previousFlowRate: flows[lastIndex].flowRate
 						})
-						flows[index].flowRate = event.flowRate
+						// THEN set flowRate to zero and set end timestamp
+						flows[lastIndex].flowRate = event.flowRate // '0'
+						flows[lastIndex].end = event.timestamp
 					} else {
-						throw Error(
-							'flow-update event triggered on non-existent flow'
-						)
+						// flow does not exist, throws
+						throw Error('Non-existent flow closed')
 					}
 				}
 			}
@@ -165,10 +182,12 @@ export const getFlowState = (
 			// calculate amount for the day
 			let amountToken: string
 			if (flowRateChanges.length === 0) {
+				// flowRate was unchanged during day
 				amountToken = new BN(flowRate)
 					.mul(new BN(secondsInDay))
 					.toString()
 			} else {
+				// flowRate was changed
 				amountToken = flowRateChanges.reduce(
 					(amount, curr, idx, arr) => {
 						if (idx === 0) {
