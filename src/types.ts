@@ -209,6 +209,7 @@ export interface Flow {
 
 export interface GradeEvent {
 	id: string
+	networkId: ChainName
 	transaction: {
 		id: string
 		timestamp: number

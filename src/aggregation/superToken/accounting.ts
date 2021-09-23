@@ -101,9 +101,10 @@ export const getFlowState = (
 			// typescript wont recognize a `.filter()` type-guard.
 			if (isFlowEvent(event)) {
 				// get last index
-				let lastIndex = -1
-				let iterator = flows.length
-				while (iterator--) {
+				let lastIndex
+				let iterator = flows.length - 1
+				// assign lastIndex to -1 if not found
+				while (iterator > -1) {
 					if (
 						flows[iterator].sender === event.sender &&
 						flows[iterator].recipient === event.recipient &&
@@ -111,10 +112,9 @@ export const getFlowState = (
 					) {
 						break
 					}
+					iterator -= 1
 				}
 				lastIndex = iterator
-				if (lastIndex === -1) {
-				}
 
 				// destruct event
 				const { timestamp, sender, recipient, txHash, flowRate } = event
@@ -132,37 +132,19 @@ export const getFlowState = (
 						token,
 						flowRateChanges: []
 					})
-				} else if (event.flowRate !== '0') {
-					// flowRate update
-					if (lastIndex !== -1) {
-						// flow exists
-						// push flowRateChange
-						flows[lastIndex].flowRateChanges.push({
-							timestamp: event.timestamp,
-							previousFlowRate: flows[lastIndex].flowRate
-						})
-						// THEN update flowRate
-						flows[lastIndex].flowRate = event.flowRate
-					} else {
-						// flow does not exist, throws
-						throw Error('FlowRate updated on non-existent flow')
-					}
 				} else {
-					// flow stop
-					if (lastIndex !== -1) {
-						// flow exists
-						// push flowRateChange
-						flows[lastIndex].flowRateChanges.push({
-							timestamp: event.timestamp,
-							previousFlowRate: flows[lastIndex].flowRate
-						})
-						// THEN set flowRate to zero and set end timestamp
-						flows[lastIndex].flowRate = event.flowRate // '0'
+					if (lastIndex === -1)
+						throw Error('FlowRate updated on non-existent flow')
+					// flow update / stop
+					flows[lastIndex].flowRateChanges.push({
+						timestamp: event.timestamp,
+						previousFlowRate: flows[lastIndex].flowRate
+					})
+					flows[lastIndex].flowRate = event.flowRate
+
+					// ONLY if flow stopped
+					if (event.flowRate === '0')
 						flows[lastIndex].end = event.timestamp
-					} else {
-						// flow does not exist, throws
-						throw Error('Non-existent flow closed')
-					}
 				}
 			}
 		})

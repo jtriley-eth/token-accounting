@@ -85,7 +85,7 @@ Router.route('/address/:id')
 			registerAddress(utils.getAddress(id).toLowerCase())
 				.then(registered => {
 					if (registered) res.status(200).send(`added: ${id}`)
-					else res.status(500).send(`not added: ${id}`)
+					else res.status(403).send(`not added: ${id}`)
 				})
 				.catch(error => res.status(500).json({ error }))
 		} else {
@@ -105,9 +105,7 @@ Router.route('/address/:id')
 
 Router.route('/force_update').put((_, res) => {
 	// force aggregation
-	update()
-		.then(() => res.status(200).send('updated'))
-		.catch(error => res.status(500).json({ error }))
+	update().then(() => res.status(200).send('updated'))
 })
 
 export default Router

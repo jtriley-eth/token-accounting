@@ -102,6 +102,7 @@ export const getSuperTokens = async (
 					const upgradeEvents = gradeEvents.upgradeEvents.map(
 						event => ({
 							id: event.id,
+							networkId: chain,
 							transaction: {
 								id: event.transaction.id,
 								timestamp: parseInt(
@@ -117,6 +118,7 @@ export const getSuperTokens = async (
 					const downgradeEvents = gradeEvents.downgradeEvents.map(
 						event => ({
 							id: event.id,
+							networkId: chain,
 							transaction: {
 								id: event.transaction.id,
 								timestamp: parseInt(

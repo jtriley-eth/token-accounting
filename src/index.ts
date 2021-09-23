@@ -24,9 +24,10 @@ agenda.define('data aggregation', async () => {
 		console.error(error)
 	}
 })
-;(async () => {
-	await agenda.every('24 hours', 'data aggregation')
-})()
+agenda.on('ready', async () => {
+	agenda.start()
+	await agenda.every('24 hours', 'data_aggregation_job')
+})
 
 app.use(cors())
 app.use(express.json())

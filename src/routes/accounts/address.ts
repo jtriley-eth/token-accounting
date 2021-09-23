@@ -1,6 +1,13 @@
 import Communicator from '../../database/dbCommunicator'
 
 export const registerAddress = async (address: string): Promise<boolean> => {
+	let accounts = []
+	try {
+		accounts = await registry()
+		if (accounts.includes(address)) return false
+	} catch (error) {
+		throw error
+	}
 	try {
 		return await Communicator.AddAccountData({
 			address: address.toLowerCase(),

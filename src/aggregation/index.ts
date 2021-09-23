@@ -3,7 +3,11 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { getSuperTokenDataAsync } from './superToken'
-import { getTransactionsAsync } from './erc20'
+import {
+	getTransactionsAsync,
+	getTokenDecimalPlaces,
+	decimalQueryAsync
+} from './erc20'
 import PriceFeeder from './priceFeed'
 import { ethNow, getSecondsIn } from '../helpers/time'
 import {
@@ -17,7 +21,7 @@ import Decimal from 'decimal.js'
 
 const etherscanKey = process.env.ETHERSCAN_KEY
 const polygonKey = process.env.POLYGON_KEY
-// in case no start date provided :)
+// in case no start date provided.
 const ETHEREUM_LAUNCH = 1438214400
 
 export const aggregateDataAsync = async (
@@ -47,33 +51,45 @@ export const aggregateDataAsync = async (
 		}: AccountDocumentType = await Promise.all([
 			getSuperTokenDataAsync(address, 'polygon-pos', startTime, endTime),
 			getSuperTokenDataAsync(address, 'xdai', startTime, endTime)
-		]).then(data => {
-			const fullFlowState = data[0].flowState.concat(data[1].flowState)
-			const fullTransfers = data[0].transfers.concat(data[1].transfers)
-			const fullGradeEvents = data[0].gradeEvents.concat(
-				data[1].gradeEvents
-			)
-			return {
-				address,
-				flowState: fullFlowState,
-				transfers: fullTransfers,
-				gradeEvents: fullGradeEvents
-			}
-		})
+		])
+			.then(data => {
+				const fullFlowState = data[0].flowState.concat(
+					data[1].flowState
+				)
+				const fullTransfers = data[0].transfers.concat(
+					data[1].transfers
+				)
+				const fullGradeEvents = data[0].gradeEvents.concat(
+					data[1].gradeEvents
+				)
+				return {
+					address,
+					flowState: fullFlowState,
+					transfers: fullTransfers,
+					gradeEvents: fullGradeEvents
+				}
+			})
+			.catch(error => {
+				throw error
+			})
 		console.log('getting erc20 transfers')
 		// iterate through erc20 transfers on ethereum, polygon, xdai
 		const transfersERC20: OutputTransfer[] = await Promise.all([
 			getTransactionsAsync(address, 'ethereum', etherscanKey),
 			getTransactionsAsync(address, 'polygon-pos', polygonKey),
 			getTransactionsAsync(address, 'xdai')
-		]).then(data => {
-			const ethereumTransfers = data[0]
-			const polygonTransfers = data[1]
-			const xdaiTransfers = data[2]
-			return ethereumTransfers
-				.concat(polygonTransfers)
-				.concat(xdaiTransfers)
-		})
+		])
+			.then(data => {
+				const ethereumTransfers = data[0]
+				const polygonTransfers = data[1]
+				const xdaiTransfers = data[2]
+				return ethereumTransfers
+					.concat(polygonTransfers)
+					.concat(xdaiTransfers)
+			})
+			.catch(error => {
+				throw error
+			})
 
 		// ALL transfers, filter upgrades by transaction hash
 		const transfers = superTransfers
@@ -88,7 +104,7 @@ export const aggregateDataAsync = async (
 			})
 			.filter(transfer => {
 				// SuperToken transfers show up on erc20 queries ¯\_(ツ)_/¯
-				// filtering if it's an erc20 transfer starting with 'super'
+				// filtering if it's a transfer starting with 'super' for now.
 				if (isERC20TokenMetadata(transfer.token)) {
 					const { name } = transfer.token
 					return !name.toLowerCase().startsWith('super')
@@ -96,40 +112,106 @@ export const aggregateDataAsync = async (
 					return true
 				}
 			})
-		console.log('getting prices')
+		// Not all ERC20's have 18 decimals. Looking at you, USDC :(
+		// BUT all Super Tokens have 18 decimals :)
+		const allTokens = transfersERC20
+			.map(transfer => ({
+				token: transfer.token.id,
+				chain: transfer.networkId,
+				isSuperToken: false
+			}))
+			.concat(
+				superTransfers.map(sTransfer => ({
+					token: sTransfer.token.id,
+					chain: sTransfer.networkId,
+					isSuperToken: false
+				}))
+			)
+			.concat(
+				flowState.map(sFlow => ({
+					token: sFlow.token.underlyingAddress,
+					chain: sFlow.networkId,
+					isSuperToken: true
+				}))
+			)
+			.concat(
+				gradeEvents.map(gEvent => ({
+					token: gEvent.token.underlyingAddress,
+					chain: gEvent.networkId,
+					isSuperToken: true
+				}))
+			)
+
+		const uniqueTokens = [...new Set(allTokens)]
+		const uniqueTokensWithDecimal: { id: string; decimals: string }[] = []
+		for await (const uToken of uniqueTokens) {
+			console.log('getting token decimal places')
+			const isSuperToken = true
+			let decimalPlaces = '18'
+			if (!isSuperToken) {
+				try {
+					decimalPlaces = await getTokenDecimalPlaces(
+						uToken.token,
+						uToken.chain
+					)
+				} catch (error) {
+					throw error
+				}
+			}
+			uniqueTokensWithDecimal.push({
+				id: uToken.token,
+				decimals: decimalPlaces
+			})
+		}
+
+		console.log('getting flow prices')
 		const flowStateWithPrice: OutputFlow[] = []
 		for await (const flow of flowState) {
-			console.log(
-				`getting price:\n\thash: ${flow.txHash}\n\ttoken: ${flow.token.symbol}`
-			)
+			console.log('getting price:', { flow })
 			const daysBack = Math.floor(
 				(ethNow() - flow.date) / secondsInDay
 			).toString()
 			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
-			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
-				id: flow.networkId,
-				contractAddress: flow.token.underlyingAddress,
-				vsCurrency: 'usd',
-				daysBack
-			})
+			let exchangeRate
+			try {
+				exchangeRate = await PriceFeeder.getAverageCoinPrice({
+					id: flow.networkId,
+					contractAddress: flow.token.underlyingAddress,
+					vsCurrency: 'usd',
+					daysBack
+				})
+			} catch (error) {
+				throw error
+			}
 			if (exchangeRate === '-1') {
 				console.log({ flow })
 			}
+			const tokenIdx = uniqueTokensWithDecimal.findIndex(
+				uTokenWithDecimal =>
+					uTokenWithDecimal.id === flow.token.underlyingAddress
+			)
+			const { decimals } = uniqueTokensWithDecimal[tokenIdx]
 			const tokenAmountDecimal = new Decimal(flow.amountToken).mul(
-				new Decimal(1e-18)
+				new Decimal(10).pow(new Decimal(`-${decimals}`))
 			)
 			const amountFiat = tokenAmountDecimal
 				.mul(new Decimal(exchangeRate))
 				.toString()
 
 			flowStateWithPrice.push(
-				Object.assign({}, flow, { amountFiat, exchangeRate })
+				Object.assign({}, flow, {
+					amountFiat,
+					exchangeRate,
+					amountToken: tokenAmountDecimal
+				})
 			)
 		}
 
 		const transfersWithPrice: OutputTransfer[] = []
+		console.log('getting transfer prices')
 		for await (const transfer of transfers) {
+			console.log('getting price:', { transfer })
 			const daysBack = Math.floor(
 				(ethNow() - transfer.date) / secondsInDay
 			).toString()
@@ -140,26 +222,41 @@ export const aggregateDataAsync = async (
 				: token.id
 			// 2 second rate limit
 			await new Promise(resolve => setTimeout(resolve, 2000))
-			const exchangeRate = await PriceFeeder.getAverageCoinPrice({
-				id: transfer.networkId,
-				contractAddress,
-				vsCurrency: 'usd',
-				daysBack
-			})
+			let exchangeRate
+			try {
+				exchangeRate = await PriceFeeder.getAverageCoinPrice({
+					id: transfer.networkId,
+					contractAddress,
+					vsCurrency: 'usd',
+					daysBack
+				})
+			} catch (error) {
+				throw error
+			}
 			if (exchangeRate === '-1') {
 				console.log({ transfer })
 			}
-			const tokenAmountD = new Decimal(transfer.amountToken).mul(
-				new Decimal(1e-18)
+			const tokenIdx = uniqueTokensWithDecimal.findIndex(
+				uTokenWithDecimal => uTokenWithDecimal.id === transfer.token.id
+			)
+			const { decimals } = uniqueTokensWithDecimal[tokenIdx]
+			const tokenAmountDecimal = new Decimal(transfer.amountToken).mul(
+				new Decimal(10).pow(new Decimal(`-${decimals}`))
 			)
 			// if exchangeRate not found, it's set to -1, as is the amountFiat
 			const amountFiat =
 				exchangeRate !== '-1'
-					? tokenAmountD.mul(new Decimal(exchangeRate)).toString()
+					? tokenAmountDecimal
+							.mul(new Decimal(exchangeRate))
+							.toString()
 					: '-1'
 
 			transfersWithPrice.push(
-				Object.assign({}, transfer, { amountFiat, exchangeRate })
+				Object.assign({}, transfer, {
+					amountFiat,
+					exchangeRate,
+					amountToken: tokenAmountDecimal
+				})
 			)
 		}
 		tableData.push({

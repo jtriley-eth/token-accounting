@@ -43,6 +43,7 @@ const accountSchema = new Schema({
 	gradeEvents: [
 		{
 			id: String,
+			networkId: String,
 			transaction: {
 				id: String,
 				timestamp: Number

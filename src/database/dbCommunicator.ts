@@ -78,8 +78,6 @@ const RemoveAccountData = async (address: string): Promise<boolean> => {
 type DBToken = {
 	address: string
 	superTokenAddress?: string
-	name: string
-	symbol: string
 	decimals: string
 }
 

@@ -12,6 +12,7 @@ import {
 	QueryxDaiTransfer
 } from '../../types'
 import { AbiItem } from 'web3-utils'
+import Communicator from '../../database/dbCommunicator'
 
 export const getTransactionsAsync = async (
 	address: string,
@@ -63,7 +64,7 @@ const erc20Query = async (
 							sender: from,
 							recipient: to,
 							txHash: hash,
-							networkId: 'ethereum',
+							networkId: chain,
 							amountToken: value,
 							amountFiat: '',
 							exchangeRate: '',
@@ -142,16 +143,50 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 		})
 }
 
+// this checks if token data is stored locally
+// runs query function if not
+export const getTokenDecimalPlaces = async (
+	tokenAddress: string,
+	chain: ChainName
+): Promise<string> => {
+	let tokenData
+	try {
+		tokenData = await Communicator.GetToken(tokenAddress)
+	} catch (error) {
+		console.log({ error })
+		throw error
+	}
+	if (tokenData !== null) {
+		return tokenData.decimals
+	} else {
+		try {
+			const tokenDecimals = await decimalQueryAsync(tokenAddress, chain)
+			const added = await Communicator.AddToken({
+				address: tokenAddress,
+				decimals: tokenDecimals
+			})
+			if (added) return tokenDecimals
+			else throw Error('failed to add token to Database')
+		} catch (error) {
+			console.log({
+				tokenAddress,
+				chain,
+				error
+			})
+			throw error
+		}
+	}
+}
+
 // Why cant we all just have 18 decimals :(
-// etherscan
+// this QUERIES data only
 export const decimalQueryAsync = async (
 	address: string,
 	chain: ChainName
-): Promise<number> => {
+): Promise<string> => {
 	const url = getTokenEndpoint(chain)
 	const web3 = new Web3(new Web3.providers.HttpProvider(url))
 	const abi: AbiItem = JSON.parse(JSON.stringify(ABI))
 	const erc20Contract = new web3.eth.Contract(abi, address)
-	const data = await erc20Contract.methods.decimals().call()
-	return data
+	return await erc20Contract.methods.decimals().call()
 }
