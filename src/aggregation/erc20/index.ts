@@ -134,6 +134,8 @@ const xdaiErc20Query = async (address: string): Promise<any> => {
 				return transfers.filter(
 					transfer => typeof transfer.amountToken !== 'undefined'
 				)
+			} else if (data.message === 'No token transfers found') {
+				return []
 			} else {
 				throw Error(JSON.stringify(data, null, 4))
 			}
