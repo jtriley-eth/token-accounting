@@ -10,7 +10,9 @@ import { ethereumLaunch, ethNow } from '../../helpers/time'
 const Router = express.Router()
 
 Router.route('/data').get((req, res) => {
-	const { id, start: queryStart, end: queryEnd }: UserQueryType = req.params
+	const id = req.query.id as string | undefined
+	const queryStart = req.query.start as string | undefined
+	const queryEnd = req.query.end as string | undefined
 	const start = queryStart || ethereumLaunch
 	const end = queryEnd || ethNow()
 	if (typeof id === 'undefined') {
@@ -61,7 +63,9 @@ Router.route('/data').get((req, res) => {
 })
 
 Router.route('/csv/transfers').get((req, res) => {
-	const { id, start: queryStart, end: queryEnd }: UserQueryType = req.params
+	const id = req.query.id as string | undefined
+	const queryStart = req.query.start as string | undefined
+	const queryEnd = req.query.end as string | undefined
 	const start = queryStart || ethereumLaunch
 	const end = queryEnd || ethNow()
 	if (typeof id === 'undefined') {
@@ -84,7 +88,9 @@ Router.route('/csv/transfers').get((req, res) => {
 })
 
 Router.route('/csv/flowstate').get((req, res) => {
-	const { id, start: queryStart, end: queryEnd }: UserQueryType = req.params
+	const id = req.query.id as string | undefined
+	const queryStart = req.query.start as string | undefined
+	const queryEnd = req.query.end as string | undefined
 	const start = queryStart || ethereumLaunch
 	const end = queryEnd || ethNow()
 	if (typeof id === 'undefined') {
