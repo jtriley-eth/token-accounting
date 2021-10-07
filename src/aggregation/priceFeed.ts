@@ -1,72 +1,41 @@
-// 1. Import coingecko-api
-import { CoinGeckoClient } from 'coingecko-api-v3'
-import { CoinHistoryInput, CoinHistoryInputContract } from '../types'
+// MUST be first
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { CoinHistoryInputContract, DailyPrice } from '../types'
+import { ethereumLaunch, ethNow, unixToEthTime } from '../helpers/time'
 import axios from 'axios'
-import BN from 'bn.js'
 
-// { RESPONSES
-//   success: Boolean,
-//   message: String,
-//   code: Number,
-//   data: Object
-// }
-
-// 2. Initiate the CoinGecko API Client
-const client = new CoinGeckoClient()
-
-// checks if is
-const pingCoinGecko = async () => {
-	const data = await client.ping()
-	return data
-}
-
-// pulls all the coins current data
-const getAllCoins = async () => {
-	const data = await client.coinList
-	return data
-}
-
-// pull a specific coin's history
-const getACoinsHistory = async (input: CoinHistoryInput) => {
-	const data = await client.coinIdMarketChartRange({
-		id: input.id,
-		vs_currency: input.vsCurrency,
-		from: input.from,
-		to: input.to
-	})
-	return data
-}
+const baseUrl =
+	process.env.COIN_GECKO_ENDPOINT || 'https://api.coingecko.com/api/v3'
 
 // get coin history via contract address and num days back
-const getAverageCoinPrice = async (
+export const getDailyTokenPrice = async (
 	input: CoinHistoryInputContract
-): Promise<string> => {
-	const url = `https://api.coingecko.com/api/v3/coins/${input.id}/contract/${input.contractAddress}/market_chart/?vs_currency=${input.vsCurrency}&days=${input.daysBack}`
+): Promise<DailyPrice[]> => {
+	const url = `${baseUrl}/coins/${input.id}/contract/${
+		input.contractAddress
+	}/market_chart/range?vs_currency=${
+		input.vsCurrency
+	}&from=${ethereumLaunch}&to=${ethNow()}`
 	return axios
 		.get(url)
 		.then(res => {
 			if (res.data === undefined) {
 				throw Error('result is undefined')
 			} else {
-				// loop through all prices and calculate the average
 				const prices: number[][] = res.data.prices
-				const sum = prices.reduce((s, item) => s + item[1], 0)
-				const average = sum / prices.length
-				return average.toString()
+				return prices.map(
+					(price): DailyPrice => ({
+						timestamp: unixToEthTime(price[0]),
+						conversion: price[1].toString()
+					})
+				)
 			}
 		})
 		.catch(error => {
 			console.log({ error })
 			console.log({ token: input.contractAddress })
-			return '-1'
+			return []
 		})
 }
-
-const PriceFeeder = {
-	getACoinsHistory,
-	getAllCoins,
-	pingCoinGecko,
-	getAverageCoinPrice
-}
-
-export default PriceFeeder

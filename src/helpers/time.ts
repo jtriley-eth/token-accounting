@@ -28,3 +28,5 @@ export const roundDownToDay = (timestamp: number): number => {
 export const ethNow = () => unixToEthTime(Date.now())
 
 export const ethToday = () => unixToEthTime(roundDownToDay(Date.now()))
+
+export const ethereumLaunch = 1438214400

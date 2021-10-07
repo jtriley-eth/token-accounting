@@ -3,26 +3,21 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { getSuperTokenDataAsync } from './superToken'
-import {
-	getTransactionsAsync,
-	getTokenDecimalPlaces,
-	decimalQueryAsync
-} from './erc20'
-import PriceFeeder from './priceFeed'
-import { ethNow, getSecondsIn } from '../helpers/time'
+import { getTransactionsAsync, getTokenDecimalPlaces } from './erc20'
+import { getDailyTokenPrice } from './priceFeed'
+import { ethNow, ethereumLaunch } from '../helpers/time'
 import {
 	isERC20TokenMetadata,
-	isSuperTokenMetadata,
 	OutputFlow,
 	OutputTransfer,
-	AccountDocumentType
+	AccountDocumentType,
+	DailyPrice
 } from '../types'
 import Decimal from 'decimal.js'
 
 const etherscanKey = process.env.ETHERSCAN_KEY
 const polygonKey = process.env.POLYGON_KEY
 // in case no start date provided.
-const ETHEREUM_LAUNCH = 1438214400
 
 export const aggregateDataAsync = async (
 	addresses: string[],
@@ -35,9 +30,8 @@ export const aggregateDataAsync = async (
 	) {
 		throw Error('dotenv failed to load ETHERSCAN_KEY or POLYGON_KEY')
 	}
-	const startTime = typeof start === 'undefined' ? ETHEREUM_LAUNCH : start
+	const startTime = typeof start === 'undefined' ? ethereumLaunch : start
 	const endTime = typeof end === 'undefined' ? ethNow() : end
-	const secondsInDay = getSecondsIn('day')
 
 	// iterate through all addresses
 	const tableData: AccountDocumentType[] = []
@@ -143,7 +137,11 @@ export const aggregateDataAsync = async (
 			)
 
 		const uniqueTokens = [...new Set(allTokens)]
-		const uniqueTokensWithDecimal: { id: string; decimals: string }[] = []
+		const uniqueTokensWithDecimal: {
+			id: string
+			decimals: string
+			prices: DailyPrice[]
+		}[] = []
 		for await (const uToken of uniqueTokens) {
 			console.log('getting token decimal places')
 			const isSuperToken = true
@@ -158,40 +156,33 @@ export const aggregateDataAsync = async (
 					throw error
 				}
 			}
+			// 2 second rate limit
+			await new Promise(resolve => setTimeout(resolve, 2000))
+			console.log('getting token price data')
+			const prices = await getDailyTokenPrice({
+				id: uToken.chain,
+				contractAddress: uToken.token,
+				vsCurrency: 'usd'
+			})
 			uniqueTokensWithDecimal.push({
 				id: uToken.token,
-				decimals: decimalPlaces
+				decimals: decimalPlaces,
+				prices
 			})
 		}
 
-		console.log('getting flow prices')
 		const flowStateWithPrice: OutputFlow[] = []
 		for await (const flow of flowState) {
-			console.log('getting price:', { flow })
-			const daysBack = Math.floor(
-				(ethNow() - flow.date) / secondsInDay
-			).toString()
-			// 2 second rate limit
-			await new Promise(resolve => setTimeout(resolve, 2000))
-			let exchangeRate
-			try {
-				exchangeRate = await PriceFeeder.getAverageCoinPrice({
-					id: flow.networkId,
-					contractAddress: flow.token.underlyingAddress,
-					vsCurrency: 'usd',
-					daysBack
-				})
-			} catch (error) {
-				throw error
-			}
-			if (exchangeRate === '-1') {
-				console.log({ flow })
-			}
 			const tokenIdx = uniqueTokensWithDecimal.findIndex(
 				uTokenWithDecimal =>
 					uTokenWithDecimal.id === flow.token.underlyingAddress
 			)
-			const { decimals } = uniqueTokensWithDecimal[tokenIdx]
+			const { decimals, prices } = uniqueTokensWithDecimal[tokenIdx]
+			const exchangeIdx = prices.findIndex(
+				price => flow.date <= price.timestamp
+			)
+			const exchangeRate =
+				exchangeIdx !== -1 ? prices[exchangeIdx].conversion : '-1'
 			const tokenAmountDecimal = new Decimal(flow.amountToken).mul(
 				new Decimal(10).pow(new Decimal(`-${decimals}`))
 			)
@@ -209,37 +200,16 @@ export const aggregateDataAsync = async (
 		}
 
 		const transfersWithPrice: OutputTransfer[] = []
-		console.log('getting transfer prices')
 		for await (const transfer of transfers) {
-			console.log('getting price:', { transfer })
-			const daysBack = Math.floor(
-				(ethNow() - transfer.date) / secondsInDay
-			).toString()
-
-			const { token } = transfer
-			const contractAddress = isSuperTokenMetadata(token)
-				? token.underlyingAddress
-				: token.id
-			// 2 second rate limit
-			await new Promise(resolve => setTimeout(resolve, 2000))
-			let exchangeRate
-			try {
-				exchangeRate = await PriceFeeder.getAverageCoinPrice({
-					id: transfer.networkId,
-					contractAddress,
-					vsCurrency: 'usd',
-					daysBack
-				})
-			} catch (error) {
-				throw error
-			}
-			if (exchangeRate === '-1') {
-				console.log({ transfer })
-			}
 			const tokenIdx = uniqueTokensWithDecimal.findIndex(
 				uTokenWithDecimal => uTokenWithDecimal.id === transfer.token.id
 			)
-			const { decimals } = uniqueTokensWithDecimal[tokenIdx]
+			const { decimals, prices } = uniqueTokensWithDecimal[tokenIdx]
+			const exchangeIdx = prices.findIndex(
+				price => transfer.date <= price.timestamp
+			)
+			const exchangeRate =
+				exchangeIdx !== -1 ? prices[exchangeIdx].conversion : '-1'
 			const tokenAmountDecimal = new Decimal(transfer.amountToken).mul(
 				new Decimal(10).pow(new Decimal(`-${decimals}`))
 			)

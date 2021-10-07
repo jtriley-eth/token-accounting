@@ -10,7 +10,7 @@ import Connector from './database/dbCommunicator'
 import { update } from './routes/accounts/update'
 
 const app = express()
-const port = 5000
+const port = process.env.SERVER_PORT || 5000
 
 const dbUrl = process.env.DB_URL
 if (dbUrl === undefined) throw Error('dotenv failed to load DB_URL')

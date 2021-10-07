@@ -4,11 +4,15 @@ import { update } from './update'
 import { utils } from 'ethers'
 import { getAllData, getDataByAddress } from './data'
 import { getCsvFlowState, getCsvTransfers } from './helper'
+import { UserQueryType } from '../../types'
+import { ethereumLaunch, ethNow } from '../../helpers/time'
 
 const Router = express.Router()
 
-Router.route('/data/:id?').get((req, res) => {
-	const { id } = req.params
+Router.route('/data').get((req, res) => {
+	const { id, start: queryStart, end: queryEnd }: UserQueryType = req.params
+	const start = queryStart || ethereumLaunch
+	const end = queryEnd || ethNow()
 	if (typeof id === 'undefined') {
 		getAllData()
 			.then(data => {
@@ -16,9 +20,17 @@ Router.route('/data/:id?').get((req, res) => {
 					res.status(200).send(
 						data.map(account => ({
 							address: account.address,
-							flowState: account.flowState,
-							transfers: account.transfers,
-							gradeEvents: account.gradeEvents
+							flowState: account.flowState.filter(
+								fs => start < fs.date && fs.date < end
+							),
+							transfers: account.transfers.filter(
+								t => start < t.date && t.date < end
+							),
+							gradeEvents: account.gradeEvents.filter(
+								ge =>
+									start < ge.transaction.timestamp &&
+									ge.transaction.timestamp < end
+							)
 						}))
 					)
 				else res.status(404).send('no data found')
@@ -30,9 +42,17 @@ Router.route('/data/:id?').get((req, res) => {
 				if (data !== null)
 					res.status(200).send({
 						address: data.address,
-						flowState: data.flowState,
-						transfers: data.transfers,
-						gradeEvents: data.gradeEvents
+						flowState: data.flowState.filter(
+							fs => start < fs.date && fs.date < end
+						),
+						transfers: data.transfers.filter(
+							t => start < t.date && t.date < end
+						),
+						gradeEvents: data.gradeEvents.filter(
+							ge =>
+								start < ge.transaction.timestamp &&
+								ge.transaction.timestamp < end
+						)
 					})
 				else res.status(404).send(`data for address: ${id} not found`)
 			})
@@ -40,8 +60,10 @@ Router.route('/data/:id?').get((req, res) => {
 	}
 })
 
-Router.route('/csv/transfers/:id?').get((req, res) => {
-	const { id } = req.params
+Router.route('/csv/transfers').get((req, res) => {
+	const { id, start: queryStart, end: queryEnd }: UserQueryType = req.params
+	const start = queryStart || ethereumLaunch
+	const end = queryEnd || ethNow()
 	if (typeof id === 'undefined') {
 		res.status(404).json('csv can only be fetched with an address')
 	} else {
@@ -49,7 +71,11 @@ Router.route('/csv/transfers/:id?').get((req, res) => {
 			.then(data => {
 				console.log(data)
 				if (data !== null) {
-					const csv = getCsvTransfers(data.transfers)
+					const csv = getCsvTransfers(
+						data.transfers.filter(
+							t => start < t.date && t.date < end
+						)
+					)
 					res.status(200).attachment('transfers.csv').send(csv)
 				} else res.status(404).send(`data for address: ${id} not found`)
 			})
@@ -57,15 +83,21 @@ Router.route('/csv/transfers/:id?').get((req, res) => {
 	}
 })
 
-Router.route('/csv/flowstate/:id?').get((req, res) => {
-	const { id } = req.params
+Router.route('/csv/flowstate').get((req, res) => {
+	const { id, start: queryStart, end: queryEnd }: UserQueryType = req.params
+	const start = queryStart || ethereumLaunch
+	const end = queryEnd || ethNow()
 	if (typeof id === 'undefined') {
 		res.status(404).json('csv can only be fetched with an address')
 	} else {
 		getDataByAddress(id).then(data => {
 			console.log(data)
 			if (data !== null) {
-				const csv = getCsvFlowState(data.flowState)
+				const csv = getCsvFlowState(
+					data.flowState.filter(
+						fs => start < fs.date && fs.date < end
+					)
+				)
 				res.status(200).attachment('flowstate.csv').send(csv)
 			} else res.status(404).send(`data for address: ${id} not found`)
 		})

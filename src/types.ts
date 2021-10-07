@@ -1,3 +1,10 @@
+// USER QUERY TYPE
+export interface UserQueryType {
+	id?: string
+	start?: string
+	end?: string
+}
+
 // TOKEN METADATA
 export interface ERC20Metadata {
 	id: string
@@ -14,19 +21,16 @@ export interface SuperTokenMetadata {
 
 export type TokenMetadata = ERC20Metadata | SuperTokenMetadata
 
-// PRICE FEEDS
-export interface CoinHistoryInput {
-	id: string // bitcoin, etherium,etc
-	vsCurrency: string // usd,eur,etc
-	from: number // unix
-	to: number // unix
-}
-
+// PRICE FEED
 export interface CoinHistoryInputContract {
 	id: ChainName // of the the asset platform (etherium,xdai, etc. )
 	contractAddress: string
 	vsCurrency: string // usd, etc
-	daysBack: string
+}
+
+export interface DailyPrice {
+	timestamp: number
+	conversion: string
 }
 
 // DB TYPES
