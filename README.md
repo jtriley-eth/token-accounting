@@ -93,7 +93,8 @@ http://localhost:5000/accounts/force_update
 GET
 
 ```
-http://localhost:5000/accounts/data/
+# _start_time_ and _end_time_ are optional
+http://localhost:5000/accounts/data?start=_start_time_&end=_end_time_
 ```
 
 ### Get Account Data by Address
@@ -101,7 +102,8 @@ http://localhost:5000/accounts/data/
 GET
 
 ```
-http://localhost:5000/accounts/data/0x0000
+# _start_time_ and _end_time_ are optional
+http://localhost:5000/accounts/data?id=0x0000&start=_start_time_&end=_end_time_
 ```
 
 ### Get All Registered Addresses (No Data)
@@ -117,7 +119,8 @@ http://localhost:5000/accounts/registry
 GET
 
 ```
-http://localhost:5000/accounts/csv/transfers/0x0000
+# _start_time_ and _end_time_ are optional
+http://localhost:5000/accounts/csv/transfers?id=0x0000&start=_start_time_&end=_end_time_
 ```
 
 ### Get CSV File of FlowState By Address
@@ -125,7 +128,8 @@ http://localhost:5000/accounts/csv/transfers/0x0000
 GET
 
 ```
-http://localhost:5000/accounts/csv/flowstate/0x0000
+# _start_time_ and _end_time_ are optional
+http://localhost:5000/accounts/csv/flowstate?id=0x0000&start=_start_time_&end=_end_time_
 ```
 
 ---
